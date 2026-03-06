@@ -59,14 +59,17 @@
   .ch-table .ws-col { color: #38bdf8; font-weight: 600; }
   .ch-table .row-violation { border-left: 3px solid #ef4444; }
 
-  /* Heatmap */
-  .heatmap { overflow-x: auto; }
-  .hm-grid { display: grid; gap: 1px; font-size: 9px; }
-  .hm-cell { width: 100%; aspect-ratio: 1; border-radius: 2px; display: flex; align-items: center; justify-content: center; }
-  .hm-cell.ok { background: rgba(34,197,94,0.5); }
-  .hm-cell.violation { background: rgba(239,68,68,0.6); }
-  .hm-cell.equal { background: rgba(245,158,11,0.4); }
-  .hm-cell.none { background: #1e293b; }
+  /* Heatmap table */
+  .hm-table { width: 100%; border-collapse: separate; border-spacing: 2px; font-size: 10px; }
+  .hm-table thead th { position: sticky; top: 0; z-index: 1; background: #1e293b; }
+  .hm-date-th { text-align: left; padding: 4px 6px; color: #94a3b8; font-weight: 600; font-size: 10px; min-width: 50px; }
+  .hm-ch-th { padding: 4px 2px; color: #94a3b8; font-weight: 600; font-size: 9px; text-align: center; writing-mode: vertical-rl; text-orientation: mixed; height: 80px; }
+  .hm-date { text-align: left; padding: 2px 6px; color: #cbd5e1; font-size: 10px; white-space: nowrap; font-family: monospace; background: #0f172a; position: sticky; left: 0; }
+  .hm-c { width: 24px; height: 18px; border-radius: 3px; }
+  .hm-c.ok { background: #166534; }
+  .hm-c.violation { background: #991b1b; }
+  .hm-c.equal { background: #92400e; }
+  .hm-c.none { background: #1e293b; }
 
   /* Filter */
   .filter-bar { display: flex; gap: 12px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
@@ -139,13 +142,572 @@
   <!-- Daily Parity Heatmap -->
   <div class="card">
     <h2>Daily Parity Heatmap</h2>
-    <p style="font-size:12px;color:#94a3b8;margin-bottom:12px">
+    <p style="font-size:12px;color:#94a3b8;margin-bottom:8px">
       <span style="color:#22c55e">■</span> Above website &nbsp;
       <span style="color:#ef4444">■</span> Below website &nbsp;
       <span style="color:#f59e0b">■</span> Equal &nbsp;
-      <span style="color:#475569">■</span> No data
+      <span style="color:#334155">■</span> No data
     </p>
-    <canvas id="heatmapChart"></canvas>
+    <div class="filter-bar" style="margin-bottom:8px">
+      <label>Month:</label>
+      <select id="hmMonthFilter" onchange="filterHeatmap()">
+        <option value="all">All</option>
+        <option value="2026-03">2026-03</option><option value="2026-04">2026-04</option><option value="2026-05">2026-05</option><option value="2026-06">2026-06</option><option value="2026-07">2026-07</option><option value="2026-08">2026-08</option><option value="2026-09">2026-09</option>
+      </select>
+    </div>
+    <div class="table-wrap" style="max-height:400px">
+      <table class="hm-table" id="heatmapTable">
+        <thead>
+          <tr>
+            <th class="hm-date-th">Date</th>
+            <th class="hm-ch-th">Booking</th><th class="hm-ch-th">Expedia</th><th class="hm-ch-th">Agoda</th><th class="hm-ch-th">Trip</th><th class="hm-ch-th">tiket</th><th class="hm-ch-th">Traveloka</th><th class="hm-ch-th">klook</th><th class="hm-ch-th">Tripadvisor</th><th class="hm-ch-th">Bluepillow</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-hm-month="2026-03">
+            <td class="hm-date">03-06</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-03">
+            <td class="hm-date">03-07</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-03">
+            <td class="hm-date">03-08</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-03">
+            <td class="hm-date">03-09</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c none"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-03">
+            <td class="hm-date">03-10</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-03">
+            <td class="hm-date">03-11</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c none"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-03">
+            <td class="hm-date">03-12</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c none"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-03">
+            <td class="hm-date">03-13</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-03">
+            <td class="hm-date">03-14</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-03">
+            <td class="hm-date">03-15</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-03">
+            <td class="hm-date">03-16</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-03">
+            <td class="hm-date">03-17</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c none"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-03">
+            <td class="hm-date">03-18</td>
+            <td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c none"></td>
+          </tr><tr data-hm-month="2026-03">
+            <td class="hm-date">03-19</td>
+            <td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c none"></td>
+          </tr><tr data-hm-month="2026-03">
+            <td class="hm-date">03-20</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-03">
+            <td class="hm-date">03-21</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-03">
+            <td class="hm-date">03-22</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c none"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-03">
+            <td class="hm-date">03-23</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c none"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-03">
+            <td class="hm-date">03-25</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-03">
+            <td class="hm-date">03-26</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-03">
+            <td class="hm-date">03-27</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-03">
+            <td class="hm-date">03-28</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-03">
+            <td class="hm-date">03-29</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-03">
+            <td class="hm-date">03-30</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-03">
+            <td class="hm-date">03-31</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-04">
+            <td class="hm-date">04-01</td>
+            <td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-04">
+            <td class="hm-date">04-02</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-04">
+            <td class="hm-date">04-03</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-04">
+            <td class="hm-date">04-04</td>
+            <td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-04">
+            <td class="hm-date">04-05</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-04">
+            <td class="hm-date">04-06</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-04">
+            <td class="hm-date">04-07</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-04">
+            <td class="hm-date">04-08</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-04">
+            <td class="hm-date">04-09</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-04">
+            <td class="hm-date">04-10</td>
+            <td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-04">
+            <td class="hm-date">04-11</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-04">
+            <td class="hm-date">04-12</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-04">
+            <td class="hm-date">04-13</td>
+            <td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-04">
+            <td class="hm-date">04-14</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-04">
+            <td class="hm-date">04-15</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-04">
+            <td class="hm-date">04-16</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-04">
+            <td class="hm-date">04-17</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-04">
+            <td class="hm-date">04-18</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-04">
+            <td class="hm-date">04-19</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-04">
+            <td class="hm-date">04-20</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-04">
+            <td class="hm-date">04-21</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-04">
+            <td class="hm-date">04-22</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-04">
+            <td class="hm-date">04-23</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-04">
+            <td class="hm-date">04-24</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-04">
+            <td class="hm-date">04-25</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-04">
+            <td class="hm-date">04-26</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-04">
+            <td class="hm-date">04-27</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-04">
+            <td class="hm-date">04-28</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-04">
+            <td class="hm-date">04-29</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-04">
+            <td class="hm-date">04-30</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-05">
+            <td class="hm-date">05-01</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-05">
+            <td class="hm-date">05-02</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-05">
+            <td class="hm-date">05-03</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c none"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-05">
+            <td class="hm-date">05-04</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-05">
+            <td class="hm-date">05-05</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-05">
+            <td class="hm-date">05-06</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-05">
+            <td class="hm-date">05-07</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c none"></td><td class="hm-c violation"></td>
+          </tr><tr data-hm-month="2026-05">
+            <td class="hm-date">05-08</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c none"></td><td class="hm-c violation"></td>
+          </tr><tr data-hm-month="2026-05">
+            <td class="hm-date">05-09</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c none"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-05">
+            <td class="hm-date">05-10</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-05">
+            <td class="hm-date">05-11</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-05">
+            <td class="hm-date">05-12</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-05">
+            <td class="hm-date">05-13</td>
+            <td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c none"></td><td class="hm-c violation"></td>
+          </tr><tr data-hm-month="2026-05">
+            <td class="hm-date">05-14</td>
+            <td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-05">
+            <td class="hm-date">05-15</td>
+            <td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-05">
+            <td class="hm-date">05-16</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c violation"></td>
+          </tr><tr data-hm-month="2026-05">
+            <td class="hm-date">05-17</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c violation"></td>
+          </tr><tr data-hm-month="2026-05">
+            <td class="hm-date">05-18</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c none"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-05">
+            <td class="hm-date">05-19</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-05">
+            <td class="hm-date">05-20</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-05">
+            <td class="hm-date">05-21</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c violation"></td><td class="hm-c violation"></td>
+          </tr><tr data-hm-month="2026-05">
+            <td class="hm-date">05-22</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c none"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-05">
+            <td class="hm-date">05-23</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c none"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-05">
+            <td class="hm-date">05-24</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c violation"></td>
+          </tr><tr data-hm-month="2026-05">
+            <td class="hm-date">05-25</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-05">
+            <td class="hm-date">05-26</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-05">
+            <td class="hm-date">05-27</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-05">
+            <td class="hm-date">05-28</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-05">
+            <td class="hm-date">05-29</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c none"></td><td class="hm-c violation"></td>
+          </tr><tr data-hm-month="2026-05">
+            <td class="hm-date">05-30</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-05">
+            <td class="hm-date">05-31</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c violation"></td>
+          </tr><tr data-hm-month="2026-06">
+            <td class="hm-date">06-01</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c violation"></td>
+          </tr><tr data-hm-month="2026-06">
+            <td class="hm-date">06-02</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c violation"></td>
+          </tr><tr data-hm-month="2026-06">
+            <td class="hm-date">06-03</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-06">
+            <td class="hm-date">06-04</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-06">
+            <td class="hm-date">06-05</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-06">
+            <td class="hm-date">06-06</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-06">
+            <td class="hm-date">06-07</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-06">
+            <td class="hm-date">06-08</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-06">
+            <td class="hm-date">06-09</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-06">
+            <td class="hm-date">06-10</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-06">
+            <td class="hm-date">06-11</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-06">
+            <td class="hm-date">06-12</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-06">
+            <td class="hm-date">06-13</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-06">
+            <td class="hm-date">06-14</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-06">
+            <td class="hm-date">06-15</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-06">
+            <td class="hm-date">06-16</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-06">
+            <td class="hm-date">06-17</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-06">
+            <td class="hm-date">06-18</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-06">
+            <td class="hm-date">06-19</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-06">
+            <td class="hm-date">06-20</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-06">
+            <td class="hm-date">06-21</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-06">
+            <td class="hm-date">06-22</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-06">
+            <td class="hm-date">06-23</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-06">
+            <td class="hm-date">06-24</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-06">
+            <td class="hm-date">06-25</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-06">
+            <td class="hm-date">06-26</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-06">
+            <td class="hm-date">06-27</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-06">
+            <td class="hm-date">06-28</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-06">
+            <td class="hm-date">06-29</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-06">
+            <td class="hm-date">06-30</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-07">
+            <td class="hm-date">07-01</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-07">
+            <td class="hm-date">07-02</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-07">
+            <td class="hm-date">07-03</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-07">
+            <td class="hm-date">07-04</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-07">
+            <td class="hm-date">07-05</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c violation"></td>
+          </tr><tr data-hm-month="2026-07">
+            <td class="hm-date">07-06</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c violation"></td>
+          </tr><tr data-hm-month="2026-07">
+            <td class="hm-date">07-07</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c violation"></td>
+          </tr><tr data-hm-month="2026-07">
+            <td class="hm-date">07-08</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c violation"></td>
+          </tr><tr data-hm-month="2026-07">
+            <td class="hm-date">07-09</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-07">
+            <td class="hm-date">07-10</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-07">
+            <td class="hm-date">07-11</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c none"></td>
+          </tr><tr data-hm-month="2026-07">
+            <td class="hm-date">07-12</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-07">
+            <td class="hm-date">07-13</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-07">
+            <td class="hm-date">07-14</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-07">
+            <td class="hm-date">07-15</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-07">
+            <td class="hm-date">07-16</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-07">
+            <td class="hm-date">07-17</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-07">
+            <td class="hm-date">07-18</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c violation"></td>
+          </tr><tr data-hm-month="2026-07">
+            <td class="hm-date">07-19</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c violation"></td>
+          </tr><tr data-hm-month="2026-07">
+            <td class="hm-date">07-20</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c violation"></td>
+          </tr><tr data-hm-month="2026-07">
+            <td class="hm-date">07-21</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-07">
+            <td class="hm-date">07-22</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-07">
+            <td class="hm-date">07-23</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-07">
+            <td class="hm-date">07-24</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-07">
+            <td class="hm-date">07-25</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-07">
+            <td class="hm-date">07-26</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-07">
+            <td class="hm-date">07-27</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-07">
+            <td class="hm-date">07-28</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-07">
+            <td class="hm-date">07-29</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-07">
+            <td class="hm-date">07-30</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-07">
+            <td class="hm-date">07-31</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-08">
+            <td class="hm-date">08-01</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-08">
+            <td class="hm-date">08-02</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-08">
+            <td class="hm-date">08-03</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-08">
+            <td class="hm-date">08-04</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-08">
+            <td class="hm-date">08-05</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-08">
+            <td class="hm-date">08-06</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-08">
+            <td class="hm-date">08-07</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-08">
+            <td class="hm-date">08-08</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-08">
+            <td class="hm-date">08-09</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-08">
+            <td class="hm-date">08-10</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-08">
+            <td class="hm-date">08-11</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c violation"></td>
+          </tr><tr data-hm-month="2026-08">
+            <td class="hm-date">08-12</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-08">
+            <td class="hm-date">08-13</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-08">
+            <td class="hm-date">08-14</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-08">
+            <td class="hm-date">08-15</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c none"></td>
+          </tr><tr data-hm-month="2026-08">
+            <td class="hm-date">08-16</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c violation"></td>
+          </tr><tr data-hm-month="2026-08">
+            <td class="hm-date">08-17</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c violation"></td>
+          </tr><tr data-hm-month="2026-08">
+            <td class="hm-date">08-18</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c violation"></td>
+          </tr><tr data-hm-month="2026-08">
+            <td class="hm-date">08-19</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-08">
+            <td class="hm-date">08-20</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c none"></td>
+          </tr><tr data-hm-month="2026-08">
+            <td class="hm-date">08-21</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-08">
+            <td class="hm-date">08-22</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-08">
+            <td class="hm-date">08-23</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-08">
+            <td class="hm-date">08-24</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-08">
+            <td class="hm-date">08-25</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-08">
+            <td class="hm-date">08-26</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-08">
+            <td class="hm-date">08-27</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c violation"></td>
+          </tr><tr data-hm-month="2026-08">
+            <td class="hm-date">08-28</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c violation"></td>
+          </tr><tr data-hm-month="2026-08">
+            <td class="hm-date">08-29</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-08">
+            <td class="hm-date">08-30</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-08">
+            <td class="hm-date">08-31</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c violation"></td><td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c ok"></td>
+          </tr><tr data-hm-month="2026-09">
+            <td class="hm-date">09-01</td>
+            <td class="hm-c ok"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c ok"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c violation"></td><td class="hm-c none"></td>
+          </tr><tr data-hm-month="2026-09">
+            <td class="hm-date">09-02</td>
+            <td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c none"></td><td class="hm-c none"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <!-- Price Spread Table -->
@@ -1201,36 +1763,13 @@ new Chart(document.getElementById('violationsChart'), {
   }
 });
 
-// === HEATMAP (using Chart.js matrix-style with bar chart) ===
-// We'll use a grouped approach: one dataset per channel, data = 1 (ok), -1 (violation), 0.5 (equal), 0 (none)
-const hmChannels = ["Booking.com","Expedia","Agoda","Trip.com","tiket.com","Traveloka.com","klook","Tripadvisor","Bluepillow.id"];
-const hmData = [{"date":"2026-03-06","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"none","Trip.com":"ok","tiket.com":"none","Traveloka.com":"none","klook":"none","Tripadvisor":"none","Bluepillow.id":"ok"}},{"date":"2026-03-07","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"none","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"ok","klook":"none","Tripadvisor":"ok","Bluepillow.id":"ok"}},{"date":"2026-03-08","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"none","klook":"violation","Tripadvisor":"ok","Bluepillow.id":"ok"}},{"date":"2026-03-09","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"none","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"ok","klook":"violation","Tripadvisor":"none","Bluepillow.id":"ok"}},{"date":"2026-03-10","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"ok","klook":"violation","Tripadvisor":"ok","Bluepillow.id":"ok"}},{"date":"2026-03-11","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"ok","klook":"violation","Tripadvisor":"none","Bluepillow.id":"ok"}},{"date":"2026-03-12","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"none","klook":"violation","Tripadvisor":"none","Bluepillow.id":"ok"}},{"date":"2026-03-13","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"none","Traveloka.com":"none","klook":"none","Tripadvisor":"none","Bluepillow.id":"ok"}},{"date":"2026-03-14","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"none","Trip.com":"ok","tiket.com":"none","Traveloka.com":"none","klook":"ok","Tripadvisor":"none","Bluepillow.id":"ok"}},{"date":"2026-03-15","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"none","Traveloka.com":"ok","klook":"ok","Tripadvisor":"ok","Bluepillow.id":"ok"}},{"date":"2026-03-16","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"none","klook":"ok","Tripadvisor":"ok","Bluepillow.id":"ok"}},{"date":"2026-03-17","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"none","klook":"violation","Tripadvisor":"none","Bluepillow.id":"ok"}},{"date":"2026-03-18","cells":{"Booking.com":"none","Expedia":"none","Agoda":"none","Trip.com":"none","tiket.com":"none","Traveloka.com":"none","klook":"none","Tripadvisor":"none","Bluepillow.id":"none"}},{"date":"2026-03-19","cells":{"Booking.com":"none","Expedia":"none","Agoda":"none","Trip.com":"none","tiket.com":"none","Traveloka.com":"none","klook":"none","Tripadvisor":"none","Bluepillow.id":"none"}},{"date":"2026-03-20","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"none","klook":"violation","Tripadvisor":"ok","Bluepillow.id":"ok"}},{"date":"2026-03-21","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"none","klook":"ok","Tripadvisor":"none","Bluepillow.id":"ok"}},{"date":"2026-03-22","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"none","klook":"violation","Tripadvisor":"none","Bluepillow.id":"ok"}},{"date":"2026-03-23","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"ok","klook":"violation","Tripadvisor":"none","Bluepillow.id":"ok"}},{"date":"2026-03-25","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"violation","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"none","klook":"none","Tripadvisor":"none","Bluepillow.id":"ok"}},{"date":"2026-03-26","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"none","klook":"none","Tripadvisor":"ok","Bluepillow.id":"ok"}},{"date":"2026-03-27","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"none","klook":"violation","Tripadvisor":"ok","Bluepillow.id":"ok"}},{"date":"2026-03-28","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"ok","klook":"ok","Tripadvisor":"ok","Bluepillow.id":"ok"}},{"date":"2026-03-29","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"ok","klook":"ok","Tripadvisor":"none","Bluepillow.id":"ok"}},{"date":"2026-03-30","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"none","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"none","klook":"ok","Tripadvisor":"none","Bluepillow.id":"ok"}},{"date":"2026-03-31","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"none","klook":"ok","Tripadvisor":"ok","Bluepillow.id":"ok"}},{"date":"2026-04-01","cells":{"Booking.com":"none","Expedia":"ok","Agoda":"none","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"none","klook":"none","Tripadvisor":"ok","Bluepillow.id":"ok"}},{"date":"2026-04-02","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"none","klook":"ok","Tripadvisor":"none","Bluepillow.id":"ok"}},{"date":"2026-04-03","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"none","Traveloka.com":"ok","klook":"ok","Tripadvisor":"none","Bluepillow.id":"ok"}},{"date":"2026-04-04","cells":{"Booking.com":"none","Expedia":"ok","Agoda":"none","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"none","klook":"none","Tripadvisor":"none","Bluepillow.id":"ok"}},{"date":"2026-04-05","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"none","klook":"ok","Tripadvisor":"ok","Bluepillow.id":"ok"}},{"date":"2026-04-06","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"ok","klook":"ok","Tripadvisor":"ok","Bluepillow.id":"ok"}},{"date":"2026-04-07","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"none","klook":"ok","Tripadvisor":"ok","Bluepillow.id":"ok"}},{"date":"2026-04-08","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"none","klook":"ok","Tripadvisor":"ok","Bluepillow.id":"ok"}},{"date":"2026-04-09","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"none","Traveloka.com":"ok","klook":"ok","Tripadvisor":"ok","Bluepillow.id":"ok"}},{"date":"2026-04-10","cells":{"Booking.com":"none","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"none","klook":"ok","Tripadvisor":"none","Bluepillow.id":"ok"}},{"date":"2026-04-11","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"none","klook":"ok","Tripadvisor":"none","Bluepillow.id":"ok"}},{"date":"2026-04-12","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"none","klook":"ok","Tripadvisor":"ok","Bluepillow.id":"ok"}},{"date":"2026-04-13","cells":{"Booking.com":"none","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"none","klook":"ok","Tripadvisor":"ok","Bluepillow.id":"ok"}},{"date":"2026-04-14","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"ok","klook":"ok","Tripadvisor":"ok","Bluepillow.id":"ok"}},{"date":"2026-04-15","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"none","klook":"ok","Tripadvisor":"ok","Bluepillow.id":"ok"}},{"date":"2026-04-16","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"none","klook":"ok","Tripadvisor":"ok","Bluepillow.id":"ok"}},{"date":"2026-04-17","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"none","klook":"ok","Tripadvisor":"ok","Bluepillow.id":"ok"}},{"date":"2026-04-18","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"ok","klook":"ok","Tripadvisor":"ok","Bluepillow.id":"ok"}},{"date":"2026-04-19","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"none","Trip.com":"ok","tiket.com":"none","Traveloka.com":"none","klook":"ok","Tripadvisor":"none","Bluepillow.id":"ok"}},{"date":"2026-04-20","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"none","klook":"ok","Tripadvisor":"ok","Bluepillow.id":"ok"}},{"date":"2026-04-21","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"none","klook":"ok","Tripadvisor":"ok","Bluepillow.id":"ok"}},{"date":"2026-04-22","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"ok","klook":"ok","Tripadvisor":"none","Bluepillow.id":"ok"}},{"date":"2026-04-23","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"ok","klook":"ok","Tripadvisor":"ok","Bluepillow.id":"ok"}},{"date":"2026-04-24","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"none","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"none","klook":"ok","Tripadvisor":"none","Bluepillow.id":"ok"}},{"date":"2026-04-25","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"none","klook":"ok","Tripadvisor":"ok","Bluepillow.id":"ok"}},{"date":"2026-04-26","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"none","klook":"ok","Tripadvisor":"ok","Bluepillow.id":"ok"}},{"date":"2026-04-27","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"ok","klook":"ok","Tripadvisor":"ok","Bluepillow.id":"ok"}},{"date":"2026-04-28","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"none","klook":"ok","Tripadvisor":"ok","Bluepillow.id":"ok"}},{"date":"2026-04-29","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"none","Trip.com":"ok","tiket.com":"none","Traveloka.com":"none","klook":"ok","Tripadvisor":"ok","Bluepillow.id":"ok"}},{"date":"2026-04-30","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"none","Traveloka.com":"none","klook":"ok","Tripadvisor":"ok","Bluepillow.id":"ok"}},{"date":"2026-05-01","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"none","klook":"violation","Tripadvisor":"ok","Bluepillow.id":"ok"}},{"date":"2026-05-02","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"none","klook":"violation","Tripadvisor":"ok","Bluepillow.id":"ok"}},{"date":"2026-05-03","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"none","klook":"violation","Tripadvisor":"none","Bluepillow.id":"ok"}},{"date":"2026-05-04","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"none","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"none","klook":"violation","Tripadvisor":"ok","Bluepillow.id":"ok"}},{"date":"2026-05-05","cells":{"Booking.com":"ok","Expedia":"ok","Agoda":"ok","Trip.com":"ok","tiket.com":"ok","Traveloka.com":"none","klook":"ok","Tripadvisor":"none","Bluepillow.id":"ok"}}]; // first 60 dates for readability
-const hmDatasets = hmChannels.map((ch, ci) => ({
-  label: ch,
-  data: hmData.map(d => {
-    const s = d.cells[ch];
-    return s === 'ok' ? 1 : s === 'violation' ? -1 : s === 'equal' ? 0.5 : 0;
-  }),
-  backgroundColor: hmData.map(d => {
-    const s = d.cells[ch];
-    return s === 'ok' ? 'rgba(34,197,94,0.5)' : s === 'violation' ? 'rgba(239,68,68,0.6)' : s === 'equal' ? 'rgba(245,158,11,0.4)' : 'rgba(30,41,59,0.5)';
-  }),
-  borderRadius: 2,
-  borderSkipped: false
-}));
-
-new Chart(document.getElementById('heatmapChart'), {
-  type: 'bar',
-  data: { labels: hmData.map(d => d.date), datasets: hmDatasets },
-  options: {
-    responsive: true,
-    plugins: { legend: { position: 'top', labels: { boxWidth: 10, padding: 8, font: { size: 9 } } } },
-    scales: {
-      x: { stacked: false, ticks: { maxRotation: 90, autoSkip: true, maxTicksLimit: 15, font: { size: 8 } } },
-      y: { display: false, min: -1.5, max: 1.5 }
-    }
-  }
-});
+// === HEATMAP FILTER ===
+function filterHeatmap() {
+  const month = document.getElementById('hmMonthFilter').value;
+  document.querySelectorAll('#heatmapTable tbody tr').forEach(tr => {
+    tr.style.display = (month === 'all' || tr.dataset.hmMonth === month) ? '' : 'none';
+  });
+}
 
 // === TABLE FILTER ===
 function filterTable() {
