@@ -85,6 +85,35 @@
   .ch-toggle.active { border-color: currentColor; background: rgba(255,255,255,0.05); }
   .ch-toggle .dot { width: 8px; height: 8px; border-radius: 50%; }
 
+  /* Daily Pricing Monitor */
+  .dm-card { background: #1e293b; border-radius: 12px; padding: 24px; border: 1px solid #334155; margin: 0 32px 20px; }
+  .dm-card h2 { font-size: 15px; font-weight: 600; color: #f1f5f9; margin-bottom: 16px; }
+  .dm-wrap { overflow-x: auto; max-height: 520px; overflow-y: auto; }
+  .dm-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .dm-table th { position: sticky; top: 0; background: #1e293b; padding: 10px 8px; text-align: left; color: #94a3b8; font-weight: 600; border-bottom: 2px solid #334155; z-index: 1; }
+  .dm-table td { padding: 8px; border-bottom: 1px solid rgba(51,65,85,0.5); }
+  .dm-table tr:hover { background: rgba(56,189,248,0.05); }
+  .dm-table tr.row-reduce { border-left: 3px solid #ef4444; }
+  .dm-table tr.row-watch { border-left: 3px solid #f59e0b; }
+  .dm-table tr.row-competitive { border-left: 3px solid #38bdf8; }
+  .sig { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+  .sig-reduce { background: rgba(239,68,68,0.2); color: #fca5a5; }
+  .sig-watch { background: rgba(245,158,11,0.2); color: #fbbf24; }
+  .sig-hold { background: rgba(34,197,94,0.2); color: #86efac; }
+  .sig-competitive { background: rgba(56,189,248,0.2); color: #7dd3fc; }
+  .zone-tag { font-size: 10px; padding: 2px 8px; border-radius: 8px; display: inline-block; }
+  .zone-urgent { background: rgba(239,68,68,0.12); color: #fca5a5; }
+  .zone-active { background: rgba(245,158,11,0.12); color: #fbbf24; }
+  .zone-patience { background: rgba(34,197,94,0.12); color: #86efac; }
+  .zone-far { background: rgba(100,116,139,0.12); color: #94a3b8; }
+  .panic-box { background: linear-gradient(135deg, rgba(239,68,68,0.06), rgba(245,158,11,0.06)); border: 1px solid rgba(239,68,68,0.2); border-radius: 12px; padding: 20px 24px; margin: 0 32px 20px; display: flex; gap: 32px; align-items: flex-start; flex-wrap: wrap; }
+  .panic-stat { flex: 1; min-width: 200px; }
+  .panic-stat .val-big { font-size: 26px; font-weight: 700; color: #ef4444; }
+  .panic-stat .val-label { font-size: 11px; color: #f59e0b; font-weight: 600; text-transform: uppercase; margin-bottom: 4px; }
+  .panic-stat .val-desc { font-size: 12px; color: #94a3b8; margin-top: 6px; line-height: 1.6; }
+  .insight-bar { display: flex; gap: 6px; margin-top: 8px; }
+  .insight-chip { font-size: 10px; padding: 4px 10px; border-radius: 8px; background: rgba(255,255,255,0.05); color: #cbd5e1; border: 1px solid #334155; }
+
   @media (max-width: 1100px) { .grid { grid-template-columns: 1fr; } }
 </style>
 </head>
@@ -1666,8 +1695,8 @@
     <div class="label">Avg Price (30d)</div>
   </div>
   <div class="kpi">
-    <div class="value">0.728</div>
-    <div class="label">Price-OCC R²</div>
+    <div class="value amber">IDR 1.37M</div>
+    <div class="label">Feb 2026 ARR (Lowest)</div>
   </div>
   <div class="kpi">
     <div class="value green">IDR 1.0M</div>
@@ -1685,20 +1714,177 @@
     <canvas id="occArrChart"></canvas>
   </div>
   <div class="card">
-    <h2>Cheapest Market Price vs Occupancy — Parabolic (Monthly) Regression</h2>
+    <h2>Price Position vs Lead Time — Daily Decision Map</h2>
     <div class="reg-stats">
-      <div class="reg-stat"><div class="val">0.7283</div><div class="lbl">R²</div></div>
-      <div class="reg-stat"><div class="val">7</div><div class="lbl">N (monthly)</div></div>
-      <div class="reg-stat"><div class="val">IDR 2.45M</div><div class="lbl">Trough Price</div></div>
-      <div class="reg-stat"><div class="val">27.6%</div><div class="lbl">Min OCC</div></div>
+      <div class="reg-stat"><div class="val red" id="dmReduceCount">-</div><div class="lbl">Reduce (push OCC)</div></div>
+      <div class="reg-stat"><div class="val amber" id="dmWatchCount">-</div><div class="lbl">Watch</div></div>
+      <div class="reg-stat"><div class="val green" id="dmHoldCount">-</div><div class="lbl">Hold</div></div>
+      <div class="reg-stat"><div class="val" style="color:#38bdf8" id="dmCompCount">-</div><div class="lbl">Competitive</div></div>
     </div>
-    <canvas id="scatterChart"></canvas>
+    <canvas id="leadTimeChart"></canvas>
+  </div>
+</div>
+
+<!-- Occupancy-First Strategy Context -->
+<div class="panic-box">
+  <div class="panic-stat">
+    <div class="val-label">Empty Room Cost (Est. Per Night)</div>
+    <div class="val-big" id="emptyRoomCost">-</div>
+    <div class="val-desc">Each empty room = lost room revenue + lost F&B, spa, and ancillary spend. <strong>Filling rooms is priority #1</strong> — every guest drives total property revenue beyond room rate.</div>
+  </div>
+  <div class="panic-stat">
+    <div class="val-label">Dates Overpriced vs Market</div>
+    <div class="val-big" style="color:#ef4444" id="overpricedCount">-</div>
+    <div class="val-desc">Check-in dates where website is &gt;3% above cheapest competitor. These dates risk losing bookings to OTAs or competitors. <strong>Reduce to match or beat market to capture demand.</strong></div>
+  </div>
+  <div class="panic-stat">
+    <div class="val-label">Decision Rule (OCC-First)</div>
+    <div class="val-desc" style="font-size:13px; color:#e2e8f0; line-height:1.8">
+      <strong style="color:#ef4444">Overpriced (&gt;3%):</strong> Reduce — every empty room is lost total revenue<br>
+      <strong style="color:#f59e0b">Slightly above (0-3%):</strong> Watch — monitor pickup daily<br>
+      <strong style="color:#22c55e">At/below market:</strong> Hold — price is right, focus on distribution<br>
+      <strong style="color:#38bdf8">Well below market:</strong> Competitive edge — push marketing to capture
+    </div>
+  </div>
+</div>
+
+<!-- Gap Analysis Section -->
+<div class="section-title">Gap Analysis — Price Position vs Occupancy</div>
+<div class="section-sub">How pricing decisions impact room fill rate. Goal: maximize occupancy at the best achievable price.</div>
+
+<div class="kpi-row">
+  <div class="kpi">
+    <div class="value red" id="gaAvgOcc">-</div>
+    <div class="label">Avg Daily OCC (All Dates)</div>
+  </div>
+  <div class="kpi">
+    <div class="value green" id="gaCompOcc">-</div>
+    <div class="label">Avg OCC When Competitive</div>
+  </div>
+  <div class="kpi">
+    <div class="value red" id="gaOverOcc">-</div>
+    <div class="label">Avg OCC When Overpriced</div>
+  </div>
+  <div class="kpi">
+    <div class="value amber" id="gaOccDelta">-</div>
+    <div class="label">OCC Gap (Competitive vs Overpriced)</div>
+  </div>
+  <div class="kpi">
+    <div class="value amber" id="gaOppRevenue">-</div>
+    <div class="label">Revenue Opportunity</div>
+  </div>
+  <div class="kpi">
+    <div class="value red" id="gaEmptyRooms">-</div>
+    <div class="label">Empty Room-Nights</div>
+  </div>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h2>Price Gap vs Daily Occupancy — Every Check-in Date</h2>
+    <canvas id="gapOccScatter"></canvas>
+  </div>
+  <div class="card">
+    <h2>Avg Occupancy by Price Position</h2>
+    <canvas id="tierBarChart"></canvas>
+  </div>
+  <div class="card">
+    <h2>What Drives Occupancy? — Correlation with Daily OCC</h2>
+    <p style="font-size:11px;color:#94a3b8;margin-bottom:12px">Negative = higher value → lower OCC. Stronger bar = stronger relationship.</p>
+    <canvas id="corrChart"></canvas>
+  </div>
+  <div class="card">
+    <h2>Competitor Landscape — Who Beats Us?</h2>
+    <p style="font-size:11px;color:#94a3b8;margin-bottom:12px">When more competitors undercut our website, occupancy drops.</p>
+    <canvas id="undercutChart"></canvas>
+  </div>
+</div>
+
+<!-- Monthly Gap Summary -->
+<div class="dm-card">
+  <h2>Monthly Gap Summary</h2>
+  <div class="dm-wrap" style="max-height:300px">
+    <table class="dm-table">
+      <thead>
+        <tr>
+          <th>Month</th>
+          <th>Avg OCC</th>
+          <th>Avg Gap</th>
+          <th>Overpriced Dates</th>
+          <th>Low OCC Dates (&lt;50%)</th>
+          <th>Empty Rooms</th>
+          <th>Assessment</th>
+        </tr>
+      </thead>
+      <tbody id="gaMonthTbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Daily Action Table -->
+<div class="dm-card">
+  <h2>Daily Pricing Action List</h2>
+  <div class="filter-bar" style="margin-bottom:14px">
+    <label>Signal:</label>
+    <select id="dmSigFilter" onchange="filterDM()">
+      <option value="all">All Signals</option>
+      <option value="reduce">Reduce (Push OCC)</option>
+      <option value="watch">Watch</option>
+      <option value="hold">Hold</option>
+      <option value="competitive">Competitive</option>
+    </select>
+    <label>Zone:</label>
+    <select id="dmZoneFilter" onchange="filterDM()">
+      <option value="all">All Zones</option>
+      <option value="urgent">0-14 days</option>
+      <option value="active">15-30 days</option>
+      <option value="patience">31-60 days</option>
+      <option value="far">61+ days</option>
+    </select>
+    <span style="font-size:11px;color:#64748b" id="dmShowing"></span>
+  </div>
+  <div class="dm-wrap">
+    <table class="dm-table">
+      <thead>
+        <tr>
+          <th>Check-in Date</th>
+          <th>Lead Time</th>
+          <th>Zone</th>
+          <th>Website Price</th>
+          <th>Cheapest Market</th>
+          <th>Gap</th>
+          <th>Daily OCC</th>
+          <th>Signal</th>
+          <th>Reasoning</th>
+        </tr>
+      </thead>
+      <tbody id="dmTbody"></tbody>
+    </table>
   </div>
 </div>
 
 <div class="recs">
-  <h2>Recommendations & Insights</h2>
-  <div class="rec info"><h3>Price-Occupancy Relationship (Parabolic)</h3><p>Parabolic (Monthly) regression (n=7): R² = 0.728. The parabolic curve fits well, capturing the non-linear relationship between pricing and demand. The parabola has a trough at IDR 2.45M → 27.6% OCC. Occupancy is higher at both lower and higher price points — this reflects seasonal demand patterns where high-season months have both high prices and high occupancy.</p></div><div class="rec warning"><h3>March 2026 Performance</h3><p>Current: 70.39% OCC, ARR IDR 1.468.015. Feb closed at 85.65%. You are behind last month.</p></div><div class="rec action"><h3>Rate Parity Violations — Action Required</h3><p>Channels undercutting your website: Tripadvisor (64 dates), Agoda (58 dates), klook (42 dates), Bluepillow.id (24 dates). These channels are pricing below your direct website rate, driving bookings away from your direct channel and increasing commission costs. Prioritize fixing rate parity with Tripadvisor.</p></div><div class="rec action"><h3>Rate Hierarchy Health</h3><p>Website cheapest on 41% of dates. Full hierarchy (Website < Booking.com < Others) holds on 4% of dates. Poor parity — significant work needed with OTA rate management.</p></div><div class="rec success"><h3>Peak Demand Pricing</h3><p>High-occupancy months (>80%): 2024-08, 2024-09, 2024-10, 2025-02, 2025-03, 2025-04, 2025-05, 2025-06, 2025-07, 2025-08, 2025-09, 2025-10, 2025-11, 2026-02. Consider increasing rates by 5-10% during these periods.</p></div>
+  <h2>Occupancy-First Pricing Insights</h2>
+  <div class="rec warning">
+    <h3>Every Empty Room = Lost Total Revenue</h3>
+    <p>An empty room doesn't just lose room revenue — it loses <strong>restaurant, spa, minibar, activities, and all ancillary revenue</strong> that a guest brings. With current OCC at 70.39% (Mar) and 55.5% (Apr), every pricing decision should ask: <strong>"Will this help fill more rooms?"</strong> More guests = more total property revenue.</p>
+  </div>
+  <div class="rec action">
+    <h3>Reduce Overpriced Dates Immediately</h3>
+    <p>Dates where website is &gt;3% above cheapest competitor are flagged as <strong>REDUCE</strong>. These are dates where potential guests see a cheaper option elsewhere and book there — or don't book at all. Match or beat market price to capture every possible booking. The ancillary revenue from each guest more than compensates for a small rate reduction.</p>
+  </div>
+  <div class="rec success">
+    <h3>Competitive Dates = Push Marketing</h3>
+    <p>Dates where website is already at or below market price are your <strong>competitive advantage</strong>. Price is right — now push these dates through marketing, promotions, email campaigns, and OTA visibility boosts. The goal is volume: fill rooms first, upsell F&B and spa on arrival.</p>
+  </div>
+  <div class="rec info">
+    <h3>Booking Window Context</h3>
+    <p>Future months naturally show lower OCC — bookings accelerate inside 30 days. But in a challenging market, <strong>don't wait for last-minute demand that may not come</strong>. Be proactive: ensure competitive pricing across all lead times. Better to lock in bookings early at market rate than gamble on late demand.</p>
+  </div>
+  <div class="rec action">
+    <h3>Rate Parity = Occupancy Leak</h3>
+    <p>Tripadvisor (64 dates), Agoda (58 dates), klook (42 dates) are pricing below your website. This means <strong>potential direct bookings are leaking to OTAs</strong> — or worse, guests choose a competitor. Fix rate parity urgently: every violation is a potential lost guest, not just a lost direct booking.</p>
+  </div>
 </div>
 
 <script>
@@ -1828,36 +2014,506 @@ new Chart(document.getElementById('occArrChart'), {
   }
 });
 
-// Scatter
-// Scatter: Price vs Occupancy (Parabolic)
-const sp = [{"x":1841303,"y":70.39,"label":"2026-03"},{"x":1772822,"y":55.5,"label":"2026-04"},{"x":1839975,"y":57.39,"label":"2026-05"},{"x":1824489,"y":49.15,"label":"2026-06"},{"x":2889381,"y":40.74,"label":"2026-07"},{"x":2860849,"y":41.86,"label":"2026-08"},{"x":2419867,"y":25.12,"label":"2026-09"}];
-const rl = [{"x":1716994.05,"y":68.11012600636138},{"x":1747699.4225,"y":64.81052118173807},{"x":1778404.795,"y":61.651234344355146},{"x":1809110.1675,"y":58.63226549421256},{"x":1839815.54,"y":55.753614631310256},{"x":1870520.9125,"y":53.0152817556484},{"x":1901226.2850000001,"y":50.41726686722683},{"x":1931931.6575,"y":47.95956996604565},{"x":1962637.03,"y":45.642191052104806},{"x":1993342.4025,"y":43.465130125404244},{"x":2024047.775,"y":41.428387185944075},{"x":2054753.1475,"y":39.531962233724244},{"x":2085458.52,"y":37.775855268744806},{"x":2116163.8925,"y":36.16006629100582},{"x":2146869.265,"y":34.68459530050694},{"x":2177574.6375,"y":33.34944229724857},{"x":2208280.01,"y":32.15460728123054},{"x":2238985.3825,"y":31.100090252452787},{"x":2269690.755,"y":30.18589121091543},{"x":2300396.1275,"y":29.41201015661835},{"x":2331101.5,"y":28.778447089561666},{"x":2361806.8725,"y":28.28520200974549},{"x":2392512.245,"y":27.93227491716948},{"x":2423217.6175,"y":27.719665811833806},{"x":2453922.99,"y":27.647374693738527},{"x":2484628.3625,"y":27.715401562883642},{"x":2515333.735,"y":27.923746419269037},{"x":2546039.1075,"y":28.272409262894826},{"x":2576744.48,"y":28.76139009376095},{"x":2607449.8525,"y":29.390688911867358},{"x":2638155.225,"y":30.160305717214328},{"x":2668860.5975,"y":31.070240509801465},{"x":2699565.9699999997,"y":32.12049328962905},{"x":2730271.3425,"y":33.311064056696864},{"x":2760976.715,"y":34.64195281100501},{"x":2791682.0875000004,"y":36.113159552553725},{"x":2822387.46,"y":37.72468428134255},{"x":2853092.8325,"y":39.476526997371934},{"x":2883798.205,"y":41.36868770064132},{"x":2914503.5774999997,"y":43.40116639115149},{"x":2945208.95,"y":45.57396306890189}];
-const vp = [{"x":2454389.556528723,"y":27.64735849497862}];
-new Chart(document.getElementById('scatterChart'), {
+// === DAILY PRICING CONTROL ROOM (OCC-FIRST STRATEGY) ===
+const TODAY_DM = new Date('2026-03-06');
+
+// Daily occupancy from forecast_stat_arkamara (total_sold_persen)
+const dailyOcc = {"2026-03-06":73.81,"2026-03-07":74.42,"2026-03-08":65.12,"2026-03-09":65.12,"2026-03-10":55.81,"2026-03-11":58.14,"2026-03-12":51.16,"2026-03-13":51.16,"2026-03-14":46.51,"2026-03-15":39.53,"2026-03-16":62.79,"2026-03-17":69.77,"2026-03-18":69.77,"2026-03-19":69.77,"2026-03-20":79.07,"2026-03-21":74.42,"2026-03-22":76.74,"2026-03-23":81.4,"2026-03-24":100,"2026-03-25":83.72,"2026-03-26":74.42,"2026-03-27":79.07,"2026-03-28":81.4,"2026-03-29":81.4,"2026-03-30":81.4,"2026-03-31":81.4,"2026-04-01":88.37,"2026-04-02":88.37,"2026-04-03":51.16,"2026-04-04":62.79,"2026-04-05":55.81,"2026-04-06":60.47,"2026-04-07":51.16,"2026-04-08":48.84,"2026-04-09":44.19,"2026-04-10":46.51,"2026-04-11":55.81,"2026-04-12":39.53,"2026-04-13":41.86,"2026-04-14":55.81,"2026-04-15":60.47,"2026-04-16":62.79,"2026-04-17":53.49,"2026-04-18":37.21,"2026-04-19":39.53,"2026-04-20":44.19,"2026-04-21":48.84,"2026-04-22":62.79,"2026-04-23":62.79,"2026-04-24":74.42,"2026-04-25":62.79,"2026-04-26":48.84,"2026-04-27":51.16,"2026-04-28":55.81,"2026-04-29":62.79,"2026-04-30":46.51,"2026-05-01":53.49,"2026-05-02":53.49,"2026-05-03":62.79,"2026-05-04":65.12,"2026-05-05":79.07,"2026-05-06":81.4,"2026-05-07":81.4,"2026-05-08":62.79,"2026-05-09":58.14,"2026-05-10":48.84,"2026-05-11":51.16,"2026-05-12":62.79,"2026-05-13":60.47,"2026-05-14":60.47,"2026-05-15":62.79,"2026-05-16":51.16,"2026-05-17":55.81,"2026-05-18":65.12,"2026-05-19":69.77,"2026-05-20":53.49,"2026-05-21":83.72,"2026-05-22":76.74,"2026-05-23":44.19,"2026-05-24":46.51,"2026-05-25":51.16,"2026-05-26":44.19,"2026-05-27":46.51,"2026-05-28":39.53,"2026-05-29":37.21,"2026-05-30":37.21,"2026-05-31":32.56,"2026-06-01":27.91,"2026-06-02":46.51,"2026-06-03":72.09,"2026-06-04":67.44,"2026-06-05":62.79,"2026-06-06":27.91,"2026-06-07":27.91,"2026-06-08":30.23,"2026-06-09":32.56,"2026-06-10":46.51,"2026-06-11":44.19,"2026-06-12":37.21,"2026-06-13":39.53,"2026-06-14":55.81,"2026-06-15":60.47,"2026-06-16":48.84,"2026-06-17":60.47,"2026-06-18":62.79,"2026-06-19":55.81,"2026-06-20":46.51,"2026-06-21":48.84,"2026-06-22":55.81,"2026-06-23":51.16,"2026-06-24":48.84,"2026-06-25":46.51,"2026-06-26":46.51,"2026-06-27":46.51,"2026-06-28":79.07,"2026-06-29":74.42,"2026-06-30":23.26,"2026-07-01":16.28,"2026-07-02":18.6,"2026-07-03":20.93,"2026-07-04":32.56};
+
+// Build daily monitor data — goal: maximize occupancy
+const dm = pd.filter(d => d.bestExternal != null).map(d => {
+  const dOut = Math.round((new Date(d.date) - TODAY_DM) / 864e5);
+  const gap = +((d.websitePrice - d.bestExternal) / d.bestExternal * 100).toFixed(1);
+  const occ = dailyOcc[d.date] !== undefined ? dailyOcc[d.date] : null;
+
+  // Lead time zones
+  let zone, zoneLabel;
+  if (dOut <= 14) { zone = 'urgent'; zoneLabel = '0-14d'; }
+  else if (dOut <= 30) { zone = 'active'; zoneLabel = '15-30d'; }
+  else if (dOut <= 60) { zone = 'patience'; zoneLabel = '31-60d'; }
+  else { zone = 'far'; zoneLabel = '61d+'; }
+
+  // Signal logic — OCC-first: fill rooms, every guest = room + F&B + spa revenue
+  // gap > 0 = overpriced (we're more expensive than market)
+  // gap < 0 = competitive (we're cheaper than market)
+  // occ = daily occupancy for this specific check-in date
+  let sig, sigText, reason;
+  const lowOcc = occ !== null && occ < 50;
+  const criticalOcc = occ !== null && occ < 30;
+
+  if (gap > 5 && criticalOcc) {
+    sig = 'reduce'; sigText = 'REDUCE';
+    reason = 'Overpriced + critical OCC (' + occ + '%) — urgent: reduce to capture bookings + ancillary revenue';
+  } else if (gap > 5) {
+    sig = 'reduce'; sigText = 'REDUCE';
+    reason = 'Overpriced vs market — losing potential guests, reduce to fill rooms';
+  } else if (gap > 3 && lowOcc) {
+    sig = 'reduce'; sigText = 'REDUCE';
+    reason = 'Above market + low OCC (' + occ + '%) — match market to fill rooms';
+  } else if (gap > 3) {
+    sig = 'reduce'; sigText = 'REDUCE';
+    reason = 'Above market — guests see cheaper options elsewhere, match market to fill rooms';
+  } else if (gap > 0 && criticalOcc) {
+    sig = 'watch'; sigText = 'WATCH';
+    reason = 'Slightly above market + critical OCC (' + occ + '%) — consider reducing to drive bookings';
+  } else if (gap > 0) {
+    sig = 'watch'; sigText = 'WATCH';
+    reason = 'Slightly above market (OCC ' + (occ || '?') + '%) — monitor daily, reduce if pickup slows';
+  } else if (gap >= -3) {
+    sig = 'hold'; sigText = 'HOLD';
+    reason = 'At market rate (OCC ' + (occ || '?') + '%) — price is right, focus on distribution & marketing';
+  } else {
+    sig = 'competitive'; sigText = 'COMPETITIVE';
+    reason = 'Below market (OCC ' + (occ || '?') + '%) — strong position, push marketing to maximize bookings';
+  }
+
+  return {
+    x: dOut, y: gap, date: d.date, dOut, gap, occ, zone, zoneLabel,
+    sig, sigText, reason, wp: d.websitePrice, cp: d.bestExternal
+  };
+});
+
+// KPI counts
+const dmCounts = { reduce: 0, watch: 0, hold: 0, competitive: 0 };
+dm.forEach(d => dmCounts[d.sig]++);
+document.getElementById('dmReduceCount').textContent = dmCounts.reduce;
+document.getElementById('dmWatchCount').textContent = dmCounts.watch;
+document.getElementById('dmHoldCount').textContent = dmCounts.hold;
+document.getElementById('dmCompCount').textContent = dmCounts.competitive;
+
+// Empty room cost estimate: avg ARR + estimated ancillary per guest
+const avgARR = oa.filter(o => o.completed).reduce((s, o) => s + o.arr, 0) / oa.filter(o => o.completed).length;
+const ancillaryEst = avgARR * 0.35; // conservative 35% ancillary on top of room
+const emptyRoomCost = avgARR + ancillaryEst;
+document.getElementById('emptyRoomCost').textContent = 'IDR ' + (emptyRoomCost / 1e6).toFixed(2) + 'M';
+
+// Overpriced count
+const overpricedDates = dm.filter(d => d.gap > 3).length;
+document.getElementById('overpricedCount').textContent = overpricedDates + ' of ' + dm.length + ' dates';
+
+// === Lead Time Chart (OCC-First) ===
+const sigColorMap = {
+  reduce: 'rgba(239,68,68,',
+  watch: 'rgba(245,158,11,',
+  hold: 'rgba(34,197,94,',
+  competitive: 'rgba(56,189,248,'
+};
+const sigLabelMap = {
+  reduce: 'Reduce (' + dmCounts.reduce + ')',
+  watch: 'Watch (' + dmCounts.watch + ')',
+  hold: 'Hold (' + dmCounts.hold + ')',
+  competitive: 'Competitive (' + dmCounts.competitive + ')'
+};
+
+const ltDatasets = ['reduce', 'watch', 'competitive', 'hold'].filter(s => dmCounts[s] > 0).map(s => ({
+  label: sigLabelMap[s],
+  data: dm.filter(d => d.sig === s),
+  backgroundColor: sigColorMap[s] + '0.6)',
+  borderColor: sigColorMap[s] + '1)',
+  borderWidth: 1.5,
+  pointRadius: s === 'reduce' ? 9 : s === 'watch' ? 7 : 5,
+  pointHoverRadius: 11
+}));
+
+// Reference lines
+const yMin = Math.min(...dm.map(d => d.gap)) - 5;
+const yMax = Math.max(...dm.map(d => d.gap)) + 5;
+ltDatasets.push(
+  { label: '_parity', data: [{ x: 0, y: 0 }, { x: 125, y: 0 }], type: 'line', borderColor: '#475569', borderDash: [6, 4], borderWidth: 1.5, pointRadius: 0 },
+  { label: '_danger', data: [{ x: 0, y: 3 }, { x: 125, y: 3 }], type: 'line', borderColor: 'rgba(239,68,68,0.3)', borderDash: [3, 3], borderWidth: 1, pointRadius: 0 }
+);
+
+new Chart(document.getElementById('leadTimeChart'), {
   type: 'scatter',
+  data: { datasets: ltDatasets },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: { boxWidth: 12, filter: item => !item.text.startsWith('_') }
+      },
+      tooltip: {
+        callbacks: {
+          title: () => '',
+          label: ctx => {
+            const d = ctx.raw;
+            if (!d.date) return '';
+            return [
+              d.date + '  (' + d.dOut + ' days out)',
+              'Website: IDR ' + (d.wp / 1e6).toFixed(2) + 'M',
+              'Market:  IDR ' + (d.cp / 1e6).toFixed(2) + 'M',
+              'Gap: ' + (d.gap > 0 ? '+' : '') + d.gap + '%',
+              'OCC: ' + (d.occ || '?') + '%',
+              d.sigText + ' — ' + d.reason
+            ];
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        title: { display: true, text: 'Days Until Check-in' },
+        reverse: true, min: 0, max: 125
+      },
+      y: {
+        title: { display: true, text: '← Competitive | Overpriced →' },
+        grid: { color: ctx => ctx.tick.value === 0 ? '#475569' : 'rgba(51,65,85,0.3)' }
+      }
+    }
+  }
+});
+
+// === GAP ANALYSIS (with Competitor Pricing) ===
+// Group dates by price position tier
+const overpriced = dm.filter(d => d.gap > 3);
+const atMarket = dm.filter(d => d.gap >= -3 && d.gap <= 3);
+const competitive = dm.filter(d => d.gap < -3);
+
+const avgOf = (arr, key) => arr.length ? arr.reduce((s, d) => s + d[key], 0) / arr.length : 0;
+
+// Pearson correlation helper
+function pearson(xArr, yArr) {
+  const n = xArr.length;
+  if (n < 3) return 0;
+  const sx = xArr.reduce((a, b) => a + b, 0);
+  const sy = yArr.reduce((a, b) => a + b, 0);
+  const sxx = xArr.reduce((a, b) => a + b * b, 0);
+  const syy = yArr.reduce((a, b) => a + b * b, 0);
+  const sxy = xArr.reduce((a, x, i) => a + x * yArr[i], 0);
+  const denom = Math.sqrt((n * sxx - sx * sx) * (n * syy - sy * sy));
+  return denom ? (n * sxy - sx * sy) / denom : 0;
+}
+
+// Build enriched per-date data with all competitor pricing
+const dmWithOcc = dm.filter(d => d.occ !== null);
+const enriched = dmWithOcc.map(d => {
+  const dateIdx = chDates.indexOf(d.date);
+  const competitors = chNames.filter(ch => ch !== 'Official Site');
+
+  // Get all competitor prices for this date
+  let compPrices = [];
+  let cheaperCount = 0;
+  competitors.forEach(ch => {
+    const price = dateIdx >= 0 ? chEvo[ch][dateIdx] : null;
+    if (price) {
+      compPrices.push(price);
+      if (price < d.wp) cheaperCount++;
+    }
+  });
+
+  const avgCompPrice = compPrices.length ? compPrices.reduce((a, b) => a + b, 0) / compPrices.length : null;
+  const minCompPrice = compPrices.length ? Math.min(...compPrices) : null;
+  const maxCompPrice = compPrices.length ? Math.max(...compPrices) : null;
+  const priceSpread = (maxCompPrice && minCompPrice) ? (maxCompPrice - minCompPrice) / minCompPrice * 100 : 0;
+
+  return { ...d, avgCompPrice, minCompPrice, cheaperCount, compCount: compPrices.length, priceSpread };
+});
+
+// Calculate all correlations
+const validE = enriched.filter(d => d.avgCompPrice !== null);
+const occArr = validE.map(d => d.occ);
+
+const correlations = [
+  { label: 'Price Gap vs Market', key: 'gap',
+    r: pearson(validE.map(d => d.gap), occArr),
+    desc: 'How our price position vs cheapest competitor affects OCC' },
+  { label: 'Website Price (absolute)', key: 'wp',
+    r: pearson(validE.map(d => d.wp), occArr),
+    desc: 'Does our absolute price level predict OCC?' },
+  { label: 'Cheapest Competitor Price', key: 'minCompPrice',
+    r: pearson(validE.map(d => d.minCompPrice), occArr),
+    desc: 'When cheapest competitor is expensive, is OCC higher or lower?' },
+  { label: 'Avg Competitor Price', key: 'avgCompPrice',
+    r: pearson(validE.map(d => d.avgCompPrice), occArr),
+    desc: 'Does the overall market price level correlate with OCC?' },
+  { label: '# Channels Cheaper Than Us', key: 'cheaperCount',
+    r: pearson(validE.map(d => d.cheaperCount), occArr),
+    desc: 'When more OTAs undercut us, does OCC drop?' },
+  { label: 'Market Price Spread', key: 'priceSpread',
+    r: pearson(validE.map(d => d.priceSpread), occArr),
+    desc: 'When competitor prices vary widely, what happens to OCC?' },
+];
+correlations.sort((a, b) => Math.abs(b.r) - Math.abs(a.r));
+
+// Main correlation for trend line
+const correlation = correlations.find(c => c.key === 'gap').r;
+
+// Empty rooms calculation
+const completedMonths = oa.filter(o => o.completed && o.occ > 0);
+const estRooms = completedMonths.length ?
+  Math.round(completedMonths.reduce((s, o) => s + (o.totalRevenue / o.arr) / (o.occ / 100), 0) / completedMonths.length / 30) : 43;
+
+const totalEmptyRoomNights = dm.reduce((s, d) => {
+  const empty = d.occ !== null ? Math.round(estRooms * (100 - d.occ) / 100) : 0;
+  return s + empty;
+}, 0);
+
+// Revenue opportunity
+const avgMarket = avgOf(dm, 'cp');
+const ancillaryRate = 1.35;
+const potentialPerRoom = avgMarket * ancillaryRate;
+const problemDates = dm.filter(d => d.gap > 0 && d.occ !== null && d.occ < 60);
+const problemEmpty = problemDates.reduce((s, d) => s + Math.round(estRooms * (100 - d.occ) / 100), 0);
+const recoveryPotential = problemEmpty * 0.3 * potentialPerRoom;
+
+// Populate KPIs
+const compOcc = avgOf(competitive.filter(d => d.occ !== null), 'occ');
+const overOcc = avgOf(overpriced.filter(d => d.occ !== null), 'occ');
+document.getElementById('gaAvgOcc').textContent = avgOf(dm.filter(d => d.occ !== null), 'occ').toFixed(1) + '%';
+document.getElementById('gaCompOcc').textContent = compOcc.toFixed(1) + '%';
+document.getElementById('gaOverOcc').textContent = overOcc.toFixed(1) + '%';
+document.getElementById('gaOccDelta').textContent = '+' + (compOcc - overOcc).toFixed(1) + '%';
+document.getElementById('gaOppRevenue').textContent = 'IDR ' + (recoveryPotential / 1e6).toFixed(0) + ' Jt';
+document.getElementById('gaEmptyRooms').textContent = totalEmptyRoomNights;
+
+// === Gap vs OCC Scatter ===
+const gapOccData = enriched.map(d => ({
+  x: d.gap, y: d.occ, date: d.date, wp: d.wp, cp: d.cp, dOut: d.dOut,
+  avgComp: d.avgCompPrice, cheaper: d.cheaperCount, compCount: d.compCount
+}));
+
+const monthColors = {
+  '2026-03': '#38bdf8', '2026-04': '#22c55e', '2026-05': '#f59e0b',
+  '2026-06': '#a855f7', '2026-07': '#ef4444'
+};
+const monthSets = Object.entries(monthColors).map(([m, color]) => ({
+  label: m,
+  data: gapOccData.filter(d => d.date.startsWith(m)),
+  backgroundColor: color + '99',
+  borderColor: color,
+  borderWidth: 1,
+  pointRadius: 6,
+  pointHoverRadius: 9
+}));
+
+// Trend line
+const xVals = gapOccData.map(d => d.x);
+const yVals = gapOccData.map(d => d.y);
+const xMean = xVals.reduce((a, b) => a + b, 0) / xVals.length;
+const yMean = yVals.reduce((a, b) => a + b, 0) / yVals.length;
+const slope = xVals.reduce((s, x, i) => s + (x - xMean) * (yVals[i] - yMean), 0) /
+              xVals.reduce((s, x) => s + (x - xMean) ** 2, 0);
+const intercept = yMean - slope * xMean;
+const xMin_ga = Math.min(...xVals) - 2;
+const xMax_ga = Math.max(...xVals) + 2;
+monthSets.push({
+  label: 'Trend (r=' + correlation.toFixed(2) + ')',
+  data: [{ x: xMin_ga, y: slope * xMin_ga + intercept }, { x: xMax_ga, y: slope * xMax_ga + intercept }],
+  type: 'line', borderColor: '#ef4444', borderDash: [6, 3], borderWidth: 2, pointRadius: 0
+});
+
+new Chart(document.getElementById('gapOccScatter'), {
+  type: 'scatter',
+  data: { datasets: monthSets },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { position: 'top', labels: { boxWidth: 10, font: { size: 10 } } },
+      tooltip: { callbacks: { label: ctx => {
+        const d = ctx.raw;
+        if (!d.date) return 'Trend line';
+        return [d.date, 'OCC: ' + d.y + '%', 'Gap: ' + (d.x > 0 ? '+' : '') + d.x + '%',
+                'Website: IDR ' + (d.wp / 1e6).toFixed(2) + 'M',
+                'Market: IDR ' + (d.cp / 1e6).toFixed(2) + 'M',
+                'Avg Comp: IDR ' + (d.avgComp ? (d.avgComp / 1e6).toFixed(2) + 'M' : '-'),
+                d.cheaper + ' of ' + d.compCount + ' channels cheaper than us'];
+      }}}
+    },
+    scales: {
+      x: { title: { display: true, text: '← Competitive | Price Gap vs Market (%) | Overpriced →' },
+           grid: { color: ctx => ctx.tick.value === 0 ? '#475569' : 'rgba(51,65,85,0.3)' } },
+      y: { title: { display: true, text: 'Daily Occupancy %' }, min: 0, max: 105 }
+    }
+  }
+});
+
+// === Tier Bar Chart ===
+const tierData = [
+  { label: 'Competitive\n(<-3%)', occ: avgOf(competitive.filter(d => d.occ !== null), 'occ'), count: competitive.length, color: '#38bdf8' },
+  { label: 'At Market\n(±3%)', occ: avgOf(atMarket.filter(d => d.occ !== null), 'occ'), count: atMarket.length, color: '#22c55e' },
+  { label: 'Overpriced\n(>3%)', occ: avgOf(overpriced.filter(d => d.occ !== null), 'occ'), count: overpriced.length, color: '#ef4444' }
+];
+
+new Chart(document.getElementById('tierBarChart'), {
+  type: 'bar',
   data: {
-    datasets: [
-      { label: 'Monthly Data', data: sp, backgroundColor: 'rgba(56,189,248,0.5)', pointRadius: 6, pointHoverRadius: 8 },
-      { label: 'Parabolic Fit (R²=0.728)', data: rl, type: 'line', borderColor: '#ef4444', pointRadius: 0, borderWidth: 2.5 },
-      ...(vp.length ? [{ label: 'Trough', data: vp, backgroundColor: '#f59e0b', borderColor: '#fff', borderWidth: 2, pointRadius: 10, pointStyle: 'star' }] : [])
-    ]
+    labels: tierData.map(t => t.label),
+    datasets: [{
+      label: 'Avg OCC %',
+      data: tierData.map(t => t.occ),
+      backgroundColor: tierData.map(t => t.color + '88'),
+      borderColor: tierData.map(t => t.color),
+      borderWidth: 2,
+      borderRadius: 6,
+      barPercentage: 0.6
+    }]
   },
   options: {
     responsive: true,
     plugins: {
-      legend: { position: 'top', labels: { boxWidth: 12 } },
-      tooltip: { callbacks: { label: ctx => {
-        if (ctx.raw.label) return ctx.raw.label+': OCC '+ctx.raw.y.toFixed(1)+'%, Price IDR '+(ctx.raw.x/1e6).toFixed(2)+'M';
-        if (ctx.datasetIndex === 2) return 'Optimal: IDR '+(ctx.raw.x/1e6).toFixed(2)+'M → '+ctx.raw.y.toFixed(1)+'% OCC';
-        return '';
-      }}}
+      legend: { display: false },
+      tooltip: { callbacks: { afterLabel: ctx => tierData[ctx.dataIndex].count + ' dates' } }
     },
     scales: {
-      x: { title: { display: true, text: 'Cheapest Market Price (IDR)' }, ticks: { callback: v => (v/1e6).toFixed(1)+'M' } },
-      y: { title: { display: true, text: 'Occupancy %' }, min: 0 }
+      y: { title: { display: true, text: 'Avg Occupancy %' }, min: 0, max: 100,
+           grid: { color: 'rgba(51,65,85,0.3)' } },
+      x: { grid: { display: false } }
     }
   }
 });
+
+// === Correlation Chart — What Drives OCC? ===
+new Chart(document.getElementById('corrChart'), {
+  type: 'bar',
+  data: {
+    labels: correlations.map(c => c.label),
+    datasets: [{
+      label: 'Correlation with Daily OCC',
+      data: correlations.map(c => +c.r.toFixed(3)),
+      backgroundColor: correlations.map(c => c.r < -0.1 ? 'rgba(239,68,68,0.6)' : c.r > 0.1 ? 'rgba(34,197,94,0.6)' : 'rgba(148,163,184,0.4)'),
+      borderColor: correlations.map(c => c.r < -0.1 ? '#ef4444' : c.r > 0.1 ? '#22c55e' : '#64748b'),
+      borderWidth: 1.5,
+      borderRadius: 4,
+      barPercentage: 0.7
+    }]
+  },
+  options: {
+    responsive: true, indexAxis: 'y',
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: {
+        label: ctx => 'r = ' + ctx.raw.toFixed(3),
+        afterLabel: ctx => correlations[ctx.dataIndex].desc
+      }}
+    },
+    scales: {
+      x: { min: -0.5, max: 0.5, title: { display: true, text: '← Hurts OCC | Helps OCC →' },
+           grid: { color: ctx => ctx.tick.value === 0 ? '#475569' : 'rgba(51,65,85,0.2)' } },
+      y: { grid: { display: false }, ticks: { font: { size: 10 } } }
+    }
+  }
+});
+
+// === Undercut Analysis — Channels Cheaper vs OCC ===
+// Group by number of channels cheaper than us
+const undercutBuckets = {};
+enriched.forEach(d => {
+  const bucket = d.cheaperCount;
+  if (!undercutBuckets[bucket]) undercutBuckets[bucket] = [];
+  undercutBuckets[bucket].push(d);
+});
+const undercutLabels = Object.keys(undercutBuckets).map(Number).sort((a, b) => a - b);
+const undercutOcc = undercutLabels.map(k => avgOf(undercutBuckets[k], 'occ'));
+const undercutCount = undercutLabels.map(k => undercutBuckets[k].length);
+
+new Chart(document.getElementById('undercutChart'), {
+  type: 'bar',
+  data: {
+    labels: undercutLabels.map(k => k + ' channel' + (k !== 1 ? 's' : '')),
+    datasets: [{
+      label: 'Avg OCC %',
+      data: undercutOcc,
+      backgroundColor: undercutLabels.map(k => k <= 2 ? 'rgba(34,197,94,0.6)' : k <= 4 ? 'rgba(245,158,11,0.6)' : 'rgba(239,68,68,0.6)'),
+      borderColor: undercutLabels.map(k => k <= 2 ? '#22c55e' : k <= 4 ? '#f59e0b' : '#ef4444'),
+      borderWidth: 1.5,
+      borderRadius: 4
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { afterLabel: ctx => undercutCount[ctx.dataIndex] + ' dates' } }
+    },
+    scales: {
+      x: { title: { display: true, text: '# Channels Cheaper Than Website' }, grid: { display: false } },
+      y: { title: { display: true, text: 'Avg Occupancy %' }, min: 0, max: 100,
+           grid: { color: 'rgba(51,65,85,0.3)' } }
+    }
+  }
+});
+
+// Monthly Gap Summary Table
+const gaMonths = {};
+dm.forEach(d => {
+  const m = d.date.slice(0, 7);
+  if (!gaMonths[m]) gaMonths[m] = [];
+  gaMonths[m].push(d);
+});
+
+let gaMonthHtml = '';
+Object.keys(gaMonths).sort().forEach(m => {
+  const dates = gaMonths[m];
+  const withOcc = dates.filter(d => d.occ !== null);
+  const avgOcc = avgOf(withOcc, 'occ');
+  const avgGap = avgOf(dates, 'gap');
+  const opCount = dates.filter(d => d.gap > 3).length;
+  const lowOccCount = withOcc.filter(d => d.occ < 50).length;
+  const emptyRooms = withOcc.reduce((s, d) => s + Math.round(estRooms * (100 - d.occ) / 100), 0);
+
+  let assessment, assessColor;
+  if (opCount > dates.length * 0.3) { assessment = 'Overpriced — reduce to fill rooms'; assessColor = '#ef4444'; }
+  else if (avgOcc < 50) { assessment = 'Low demand — push distribution & promos'; assessColor = '#f59e0b'; }
+  else if (avgGap < -3) { assessment = 'Well-priced — push marketing hard'; assessColor = '#38bdf8'; }
+  else if (avgOcc >= 70) { assessment = 'Strong — maintain current strategy'; assessColor = '#22c55e'; }
+  else { assessment = 'On track — monitor daily'; assessColor = '#94a3b8'; }
+
+  gaMonthHtml += '<tr>' +
+    '<td style="color:#e2e8f0;font-weight:600">' + m + '</td>' +
+    '<td style="color:' + (avgOcc < 50 ? '#ef4444' : avgOcc < 70 ? '#f59e0b' : '#22c55e') + ';font-weight:600">' + avgOcc.toFixed(1) + '%</td>' +
+    '<td style="color:' + (avgGap > 3 ? '#ef4444' : avgGap > 0 ? '#f59e0b' : '#38bdf8') + ';font-weight:600">' + (avgGap > 0 ? '+' : '') + avgGap.toFixed(1) + '%</td>' +
+    '<td>' + (opCount > 0 ? '<span style="color:#ef4444;font-weight:700">' + opCount + '/' + dates.length + '</span>' : '<span style="color:#22c55e">0/' + dates.length + '</span>') + '</td>' +
+    '<td>' + (lowOccCount > 0 ? '<span style="color:#f59e0b;font-weight:700">' + lowOccCount + '/' + withOcc.length + '</span>' : '<span style="color:#22c55e">0/' + withOcc.length + '</span>') + '</td>' +
+    '<td>' + emptyRooms + '</td>' +
+    '<td style="color:' + assessColor + ';font-size:10px">' + assessment + '</td></tr>';
+});
+document.getElementById('gaMonthTbody').innerHTML = gaMonthHtml;
+
+// === Daily Monitor Table ===
+const fmtPrice = v => (v / 1e6).toFixed(2) + 'M';
+
+function buildMonitorTable(filterSig, filterZone) {
+  filterSig = filterSig || 'all';
+  filterZone = filterZone || 'all';
+
+  // Sort by check-in date (chronological)
+  const sorted = [...dm].sort((a, b) => a.dOut - b.dOut);
+
+  const filtered = sorted.filter(d =>
+    (filterSig === 'all' || d.sig === filterSig) &&
+    (filterZone === 'all' || d.zone === filterZone)
+  );
+
+  let html = '';
+  filtered.forEach(d => {
+    const rowCls = d.sig === 'reduce' ? 'row-reduce' : d.sig === 'watch' ? 'row-watch' : d.sig === 'competitive' ? 'row-competitive' : '';
+    const gapColor = d.gap > 3 ? '#ef4444' : d.gap > 0 ? '#f59e0b' : d.gap > -3 ? '#22c55e' : '#38bdf8';
+    html += '<tr class="' + rowCls + '">' +
+      '<td style="color:#e2e8f0;font-weight:500">' + d.date + '</td>' +
+      '<td>' + d.dOut + 'd</td>' +
+      '<td><span class="zone-tag zone-' + d.zone + '">' + d.zoneLabel + '</span></td>' +
+      '<td style="color:#38bdf8;font-weight:600">' + fmtPrice(d.wp) + '</td>' +
+      '<td>' + fmtPrice(d.cp) + '</td>' +
+      '<td style="color:' + gapColor + ';font-weight:600">' + (d.gap > 0 ? '+' : '') + d.gap + '%</td>' +
+      '<td>' + (d.occ ? d.occ + '%' : '-') + '</td>' +
+      '<td><span class="sig sig-' + d.sig + '">' + d.sigText + '</span></td>' +
+      '<td style="color:#94a3b8;font-size:10px;max-width:220px;white-space:normal;line-height:1.4">' + d.reason + '</td></tr>';
+  });
+
+  document.getElementById('dmTbody').innerHTML = html;
+  document.getElementById('dmShowing').textContent = filtered.length + ' of ' + dm.length + ' dates';
+}
+
+function filterDM() {
+  buildMonitorTable(
+    document.getElementById('dmSigFilter').value,
+    document.getElementById('dmZoneFilter').value
+  );
+}
+
+// Initial render
+buildMonitorTable();
 </script>
 </body>
 </html>
