@@ -1,0 +1,5 @@
+node_modules/
+screenshot.js
+build_dashboard.js
+dashboard_screenshot.png
+*.txt
