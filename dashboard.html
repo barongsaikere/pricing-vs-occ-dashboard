@@ -36,14 +36,15 @@
   .reg-stat .lbl { font-size: 10px; color: #94a3b8; text-transform: uppercase; }
 
   .recs { padding: 0 32px 32px; }
-  .recs h2 { font-size: 18px; font-weight: 600; margin-bottom: 14px; color: #f1f5f9; }
-  .rec { padding: 16px 20px; border-radius: 10px; margin-bottom: 12px; border-left: 4px solid; }
+  .recs h2 { font-size: 16px; font-weight: 600; margin-bottom: 10px; color: #f1f5f9; }
+  .rec-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px; }
+  .rec { padding: 10px 14px; border-radius: 8px; border-left: 4px solid; }
   .rec.warning { background: rgba(245,158,11,0.08); border-color: #f59e0b; }
   .rec.info { background: rgba(56,189,248,0.08); border-color: #38bdf8; }
   .rec.success { background: rgba(34,197,94,0.08); border-color: #22c55e; }
   .rec.action { background: rgba(168,85,247,0.08); border-color: #a855f7; }
-  .rec h3 { font-size: 14px; font-weight: 600; margin-bottom: 6px; color: #f1f5f9; }
-  .rec p { font-size: 13px; color: #cbd5e1; line-height: 1.6; }
+  .rec h3 { font-size: 13px; font-weight: 600; margin-bottom: 3px; color: #f1f5f9; }
+  .rec p { font-size: 12px; color: #cbd5e1; line-height: 1.4; margin: 0; }
 
   /* Channel table */
   .table-wrap { overflow-x: auto; max-height: 500px; overflow-y: auto; }
@@ -1710,10 +1711,6 @@
     <canvas id="priceChart"></canvas>
   </div>
   <div class="card">
-    <h2>Monthly Occupancy & ARR</h2>
-    <canvas id="occArrChart"></canvas>
-  </div>
-  <div class="card">
     <h2>Price Position vs Lead Time — Daily Decision Map</h2>
     <div class="reg-stats">
       <div class="reg-stat"><div class="val red" id="dmReduceCount">-</div><div class="lbl">Reduce (push OCC)</div></div>
@@ -1865,25 +1862,12 @@
 
 <div class="recs">
   <h2>Occupancy-First Pricing Insights</h2>
-  <div class="rec warning">
-    <h3>Every Empty Room = Lost Total Revenue</h3>
-    <p>An empty room doesn't just lose room revenue — it loses <strong>restaurant, spa, minibar, activities, and all ancillary revenue</strong> that a guest brings. With current OCC at 70.39% (Mar) and 55.5% (Apr), every pricing decision should ask: <strong>"Will this help fill more rooms?"</strong> More guests = more total property revenue.</p>
-  </div>
-  <div class="rec action">
-    <h3>Reduce Overpriced Dates Immediately</h3>
-    <p>Dates where website is &gt;3% above cheapest competitor are flagged as <strong>REDUCE</strong>. These are dates where potential guests see a cheaper option elsewhere and book there — or don't book at all. Match or beat market price to capture every possible booking. The ancillary revenue from each guest more than compensates for a small rate reduction.</p>
-  </div>
-  <div class="rec success">
-    <h3>Competitive Dates = Push Marketing</h3>
-    <p>Dates where website is already at or below market price are your <strong>competitive advantage</strong>. Price is right — now push these dates through marketing, promotions, email campaigns, and OTA visibility boosts. The goal is volume: fill rooms first, upsell F&B and spa on arrival.</p>
-  </div>
-  <div class="rec info">
-    <h3>Booking Window Context</h3>
-    <p>Future months naturally show lower OCC — bookings accelerate inside 30 days. But in a challenging market, <strong>don't wait for last-minute demand that may not come</strong>. Be proactive: ensure competitive pricing across all lead times. Better to lock in bookings early at market rate than gamble on late demand.</p>
-  </div>
-  <div class="rec action">
-    <h3>Rate Parity = Occupancy Leak</h3>
-    <p>Tripadvisor (64 dates), Agoda (58 dates), klook (42 dates) are pricing below your website. This means <strong>potential direct bookings are leaking to OTAs</strong> — or worse, guests choose a competitor. Fix rate parity urgently: every violation is a potential lost guest, not just a lost direct booking.</p>
+  <div class="rec-grid">
+    <div class="rec warning"><h3>Empty Room = Lost Total Revenue</h3><p>Each empty room loses room + F&B + spa + ancillary revenue. At 70% OCC (Mar) and 56% (Apr), <strong>fill rooms first</strong> — every guest drives total property revenue.</p></div>
+    <div class="rec action"><h3>Reduce Overpriced Dates</h3><p>Dates &gt;3% above market = lost bookings. Match or beat market price — ancillary revenue from each guest compensates for rate reductions.</p></div>
+    <div class="rec success"><h3>Competitive = Push Marketing</h3><p>At/below market? Push via marketing, promotions, OTA visibility. Fill rooms first, upsell F&B and spa on arrival.</p></div>
+    <div class="rec info"><h3>Booking Window</h3><p>Future months show lower OCC naturally. Don't wait for last-minute demand — lock in bookings early at market rate.</p></div>
+    <div class="rec action"><h3>Rate Parity Leak</h3><p>Tripadvisor (64), Agoda (58), klook (42) undercut website. Each violation = potential lost guest. Fix urgently.</p></div>
   </div>
 </div>
 
@@ -1994,25 +1978,7 @@ new Chart(document.getElementById('priceChart'), {
 
 // OCC & ARR
 const oa = [{"month":"2025-06","occ":91.76,"arr":1771331,"revpar":1625373.3256,"totalRevenue":2702899191,"completed":true},{"month":"2025-07","occ":91.56,"arr":2361805,"revpar":2162468.658,"totalRevenue":3874574707,"completed":true},{"month":"2025-08","occ":92.42,"arr":2407098,"revpar":2224639.9716000003,"totalRevenue":4129583745,"completed":true},{"month":"2025-09","occ":89.53,"arr":1856061,"revpar":1661731.4133,"totalRevenue":3104525747,"completed":true},{"month":"2025-10","occ":89.33,"arr":1591923,"revpar":1422064.8159,"totalRevenue":2873278555,"completed":true},{"month":"2025-11","occ":80.72,"arr":1505859,"revpar":1215529.3848,"totalRevenue":2300263056,"completed":true},{"month":"2025-12","occ":73.48,"arr":1725572,"revpar":1267950.3056,"totalRevenue":2507732465,"completed":true},{"month":"2026-01","occ":77.01,"arr":1612689,"revpar":1241931.7989,"totalRevenue":2386005667,"completed":true},{"month":"2026-02","occ":85.65,"arr":1374823,"revpar":1177535.8995,"totalRevenue":2047861463,"completed":true},{"month":"2026-03","occ":70.39,"arr":1468015,"revpar":1033335.7585,"totalRevenue":2008846477,"completed":false},{"month":"2026-04","occ":55.5,"arr":1829696,"revpar":1015481.2800000001,"totalRevenue":1847438718,"completed":false},{"month":"2026-05","occ":57.39,"arr":1670350,"revpar":958613.865,"totalRevenue":1793282243,"completed":false},{"month":"2026-06","occ":49.15,"arr":1779144,"revpar":874449.276,"totalRevenue":1608843695,"completed":false},{"month":"2026-07","occ":40.74,"arr":2362238,"revpar":962375.7612000001,"totalRevenue":1800903295,"completed":false},{"month":"2026-08","occ":41.86,"arr":2290808,"revpar":958932.2287999999,"totalRevenue":1773619900,"completed":false},{"month":"2026-09","occ":25.12,"arr":1674733,"revpar":420692.92960000003,"totalRevenue":852101482,"completed":false},{"month":"2026-10","occ":17.56,"arr":1423357,"revpar":249941.48919999998,"totalRevenue":485065785,"completed":false},{"month":"2026-11","occ":3.33,"arr":1806758,"revpar":60165.04140000001,"totalRevenue":104674434,"completed":false},{"month":"2026-12","occ":2.85,"arr":2502637,"revpar":71325.1545,"totalRevenue":119708388,"completed":false}];
-new Chart(document.getElementById('occArrChart'), {
-  type: 'bar',
-  data: {
-    labels: oa.map(d => d.month),
-    datasets: [
-      { label: 'Occupancy %', data: oa.map(d => d.occ), backgroundColor: oa.map(d => d.completed ? 'rgba(56,189,248,0.7)' : 'rgba(56,189,248,0.35)'), yAxisID: 'y', borderRadius: 3 },
-      { label: 'ARR', data: oa.map(d => d.arr), type: 'line', borderColor: C[1], pointRadius: 3, yAxisID: 'y1', borderWidth: 2 }
-    ]
-  },
-  options: {
-    responsive: true, interaction: { mode: 'index', intersect: false },
-    plugins: { legend: { position: 'top', labels: { boxWidth: 12 } } },
-    scales: {
-      x: { ticks: { maxRotation: 45 } },
-      y: { title: { display: true, text: 'Occupancy %' }, min: 0, max: 100 },
-      y1: { position: 'right', title: { display: true, text: 'ARR (IDR)' }, ticks: { callback: v => (v/1e6).toFixed(1)+'M' }, grid: { drawOnChartArea: false } }
-    }
-  }
-});
+// (Monthly OCC & ARR chart removed — data retained for calculations)
 
 // === DAILY PRICING CONTROL ROOM (OCC-FIRST STRATEGY) ===
 const TODAY_DM = new Date('2026-03-06');
