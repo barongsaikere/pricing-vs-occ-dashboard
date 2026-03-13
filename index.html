@@ -1,2 +1,277 @@
-<!-- Redirect to dashboard -->
-<meta http-equiv="refresh" content="0; url=dashboard.html">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arkamara Hotel — Executive Summary</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
+
+  .header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 32px; border-bottom: 1px solid #334155; }
+  .header h1 { font-size: 26px; font-weight: 700; color: #f8fafc; }
+  .header p { color: #94a3b8; margin-top: 6px; font-size: 14px; }
+  .header .date { color: #64748b; font-size: 12px; margin-top: 4px; }
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 24px 32px; }
+
+  .status-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 28px; }
+  .status-card { background: #1e293b; border-radius: 12px; padding: 18px; border: 1px solid #334155; }
+  .status-card .val { font-size: 28px; font-weight: 700; }
+  .status-card .val.red { color: #ef4444; }
+  .status-card .val.amber { color: #f59e0b; }
+  .status-card .val.green { color: #22c55e; }
+  .status-card .val.blue { color: #38bdf8; }
+  .status-card .lbl { font-size: 10px; color: #94a3b8; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .status-card .detail { font-size: 11px; color: #64748b; margin-top: 6px; line-height: 1.4; }
+
+  .section-title { font-size: 18px; font-weight: 700; color: #f8fafc; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #334155; }
+
+  .rec-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
+  .rec-item { padding: 16px 20px; border-radius: 10px; border-left: 4px solid; }
+  .rec-item.critical { background: rgba(239,68,68,0.06); border-color: #ef4444; }
+  .rec-item.warning { background: rgba(245,158,11,0.06); border-color: #f59e0b; }
+  .rec-item.action { background: rgba(168,85,247,0.06); border-color: #a855f7; }
+  .rec-item.info { background: rgba(56,189,248,0.06); border-color: #38bdf8; }
+  .rec-item.success { background: rgba(34,197,94,0.06); border-color: #22c55e; }
+  .rec-item .priority { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .rec-item .priority.p1 { color: #ef4444; }
+  .rec-item .priority.p2 { color: #f59e0b; }
+  .rec-item .priority.p3 { color: #a855f7; }
+  .rec-item .priority.p4 { color: #38bdf8; }
+  .rec-item h3 { font-size: 14px; font-weight: 600; color: #f1f5f9; margin-bottom: 6px; }
+  .rec-item p { font-size: 12px; color: #cbd5e1; line-height: 1.5; margin: 0; }
+  .rec-item .numbers { font-size: 11px; color: #94a3b8; margin-top: 8px; display: flex; gap: 16px; flex-wrap: wrap; }
+  .rec-item .numbers span { background: rgba(255,255,255,0.04); padding: 3px 10px; border-radius: 6px; border: 1px solid #334155; }
+
+  .cheapest-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 24px; }
+  .cheapest-table th { text-align: left; padding: 10px 12px; color: #94a3b8; font-weight: 600; border-bottom: 2px solid #334155; font-size: 10px; text-transform: uppercase; }
+  .cheapest-table td { padding: 8px 12px; border-bottom: 1px solid rgba(51,65,85,0.5); }
+  .cheapest-table tr:hover { background: rgba(56,189,248,0.04); }
+
+  .cta { display: inline-block; margin-top: 24px; padding: 12px 28px; background: #38bdf8; color: #0f172a; font-weight: 700; font-size: 14px; border-radius: 8px; text-decoration: none; transition: background 0.2s; }
+  .cta:hover { background: #7dd3fc; }
+
+  .footer { text-align: center; padding: 24px; color: #475569; font-size: 11px; border-top: 1px solid #1e293b; }
+
+  @media (max-width: 768px) { .container { padding: 16px; } .status-row { grid-template-columns: 1fr 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Arkamara Hotel — Pricing Executive Summary</h1>
+  <p>What to do today and why — based on real market data across 10 channels</p>
+  <div class="date">Data as of March 6, 2026 &bull; 118 check-in dates analyzed &bull; Next 4 months</div>
+</div>
+
+<div class="container">
+
+<!-- Quick Status -->
+<div class="status-row">
+  <div class="status-card">
+    <div class="val amber" id="sMarOcc">70%</div>
+    <div class="lbl">March OCC</div>
+    <div class="detail">Target: 85%+. Gap = 15pp to fill.</div>
+  </div>
+  <div class="status-card">
+    <div class="val red" id="sAprOcc">56%</div>
+    <div class="lbl">April OCC</div>
+    <div class="detail">44% rooms empty. Act now — 30d window.</div>
+  </div>
+  <div class="status-card">
+    <div class="val red" id="sReduceCount">-</div>
+    <div class="lbl">Dates Overpriced</div>
+    <div class="detail">Priced >3% above cheapest competitor.</div>
+  </div>
+  <div class="status-card">
+    <div class="val red" id="sWebCheapest">41%</div>
+    <div class="lbl">Website Cheapest</div>
+    <div class="detail">Only 74 of 180 dates. OTAs win 59%.</div>
+  </div>
+  <div class="status-card">
+    <div class="val amber" id="sEmptyRooms">-</div>
+    <div class="lbl">Empty Room-Nights</div>
+    <div class="detail">Across all tracked dates.</div>
+  </div>
+  <div class="status-card">
+    <div class="val green" id="sCompOcc">-</div>
+    <div class="lbl">OCC When Competitive</div>
+    <div class="detail">OCC on dates priced at/below market.</div>
+  </div>
+</div>
+
+<!-- Recommendations -->
+<div class="section-title">Action Plan — What to Do This Week</div>
+<div class="rec-list" id="recList">
+  <!-- Populated by JS -->
+</div>
+
+<!-- Cheapest Price Breakdown -->
+<div class="section-title">Who Is Cheapest? — Channel Price Breakdown (Next 14 Days)</div>
+<table class="cheapest-table" id="cheapestTable">
+  <thead>
+    <tr>
+      <th>Check-in Date</th>
+      <th>Website (IDR)</th>
+      <th>Cheapest Price (IDR)</th>
+      <th>Cheapest Channel</th>
+      <th>Gap</th>
+      <th>OCC</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody id="cheapestTbody"></tbody>
+</table>
+
+<div style="text-align:center">
+  <a href="dashboard.html" class="cta">Open Full Dashboard &rarr;</a>
+</div>
+
+</div>
+
+<div class="footer">Arkamara Hotel Ecommerce Team &bull; Pricing & Channel Control Dashboard</div>
+
+<script>
+// Replicate core data inline for the landing page
+const chDates = ["2026-03-06","2026-03-07","2026-03-08","2026-03-09","2026-03-10","2026-03-11","2026-03-12","2026-03-13","2026-03-14","2026-03-15","2026-03-16","2026-03-17","2026-03-18","2026-03-19","2026-03-20","2026-03-21","2026-03-22","2026-03-23","2026-03-25","2026-03-26","2026-03-27","2026-03-28","2026-03-29","2026-03-30","2026-03-31","2026-04-01","2026-04-02","2026-04-03","2026-04-04","2026-04-05","2026-04-06","2026-04-07","2026-04-08","2026-04-09","2026-04-10","2026-04-11","2026-04-12","2026-04-13","2026-04-14","2026-04-15","2026-04-16","2026-04-17","2026-04-18","2026-04-19","2026-04-20","2026-04-21","2026-04-22","2026-04-23","2026-04-24","2026-04-25","2026-04-26","2026-04-27","2026-04-28","2026-04-29","2026-04-30","2026-05-01","2026-05-02","2026-05-03","2026-05-04","2026-05-05","2026-05-06","2026-05-07","2026-05-08","2026-05-09","2026-05-10","2026-05-11","2026-05-12","2026-05-13","2026-05-14","2026-05-15","2026-05-16","2026-05-17","2026-05-18","2026-05-19","2026-05-20","2026-05-21","2026-05-22","2026-05-23","2026-05-24","2026-05-25","2026-05-26","2026-05-27","2026-05-28","2026-05-29","2026-05-30","2026-05-31","2026-06-01","2026-06-02","2026-06-03","2026-06-04","2026-06-05","2026-06-06","2026-06-07","2026-06-08","2026-06-09","2026-06-10","2026-06-11","2026-06-12","2026-06-13","2026-06-14","2026-06-15","2026-06-16","2026-06-17","2026-06-18","2026-06-19","2026-06-20","2026-06-21","2026-06-22","2026-06-23","2026-06-24","2026-06-25","2026-06-26","2026-06-27","2026-06-28","2026-06-29","2026-06-30","2026-07-01","2026-07-02","2026-07-03","2026-07-04"];
+const chNames = ["Official Site","Booking.com","Expedia","Agoda","Trip.com","tiket.com","Traveloka.com","klook","Tripadvisor","Bluepillow.id"];
+const chEvo = {"Official Site":[1496250,1496250,1496250,1786050,1665000,1665000,1665000,1665000,1665000,1665000,1665000,1786050,2028381,2028381,2028382,2028382,2028382,2028382,2163607,2028382,2028381,2028382,2028382,2028382,2028382,1975371,1975371,1791720,1791720,1791720,1791720,1706400,1706400,1706400,1706400,1791720,1706400,1706400,1791720,1791720,1791720,1706400,1706400,1706400,1706400,1706400,1791720,1791720,1881306,1791720,1791720,1791720,1791720,1791720,1706400,1777500,1866375,1866375,1866375,1959694,1959694,1959694,1866375,1866375,1777500,1866375,1866375,1959694,1866375,1866375,1866375,1866375,1866375,1866375,1866375,3553578,2090340,1777500,1777500,1777500,1777500,1777500,1777500,1777500,1777500,1777500,1777500,1777500,1866375,1866375,1866375,1777500,1777500,1777500,1777500,1777500,1777500,1777500,1777500,1866375,1866375,1777500,1866375,1866375,1866375,1777500,1777500,1866375,1866375,1866375,1866375,1866375,1866375,1959694,1959694,1777500,3140003,3140003,3140003,3140003],"Booking.com":[1927170,1927170,1927170,2300432,2144520,2144520,2144520,2144520,1969546,2058196,2060053,2206621,null,null,2415159,2612555,2495028,2612555,2495028,2505835,2495028,2399793,2505835,2821559,2555141,null,2636024,2296790,null,2299323,2242419,2472574,2472574,2204088,null,2312663,2204088,null,2297804,2564597,2596202,2204088,2204088,2472574,2472574,2472574,2596202,2596202,2726013,2596202,2596202,2596202,2596202,2596202,2472574,2472574,2596202,2596202,2596202,2726013,2944094,2726013,2596202,2596202,2472574,2596202,2596202,null,null,null,2596202,2596202,2596202,2603620,2603620,4303205,2531297,2472574,2472574,2479638,2479638,2479638,2472574,2472574,2479638,2472574,2472574,2472574,2603620,2603620,2603620,2472574,2472574,2472574,2472574,2472574,2472574,2295961,2295961,2410759,2410759,2295961,2410759,2410759,2410759,2295961,2472574,2596202,2596202,2596202,2596202,2596202,2596202,2944094,2944094,2472574,3937383,3937383,3937383,3937383],"Expedia":[1957759,1957759,1957759,2336947,2178560,2178560,2382801,2178560,2352845,2352845,2352845,2336947,null,null,2654025,2902839,2654025,2654025,2654025,2654025,2654025,2866346,2866346,3135066,2866346,2907747,2907747,2442047,2442047,2442047,2442047,2325761,2543799,2325761,2325761,2442047,2325761,2325761,2442047,2442047,2442047,2543799,2325761,2325761,2325761,2325761,2442047,2442047,2564149,2442047,2670990,2442047,2442047,2442047,2325761,2325761,2442047,2442047,2442047,2804539,2769283,2564149,2442047,2442047,2325761,2442047,2442047,2564149,2670990,2442047,2442047,2442047,2442047,2637413,2637413,4359057,2564149,2543799,2325761,2325761,2511819,2511819,2325761,2325761,2325761,2325761,2543799,2325761,2637413,2637413,2637413,2325761,2325761,2325761,2325761,2543799,2325761,2325761,2325761,2442047,2442047,2325761,2442047,2442047,2670990,2325761,2325761,2442047,2442047,2442047,2442047,2442047,2442047,3028904,2769283,2325761,3703593,3703593,3703593,3703593],"Agoda":[null,null,1677368,null,1866544,1866544,1866544,1714559,null,1762947,1760383,1867950,null,null,2083371,2083371,2083371,2092769,2083371,2083371,2121394,2089564,2092769,null,2092769,null,2243354,1977167,null,1909814,1909814,1818870,1818870,1818870,1818870,1909814,1818870,1818870,1909814,1909814,1909814,1818870,1818870,null,1818870,1818870,1909814,1909814,null,1909814,1909814,1909814,1909814,null,1818870,1818870,1909814,1909814,null,2005305,2165729,null,1909814,1909814,1818870,1909814,1909814,2005305,1909814,1909814,1909814,1909814,null,2062599,null,2420859,null,1818870,1818870,1818870,1964380,1964380,1818870,1818870,1818870,1818870,1818870,1818870,null,2062599,null,1818870,1818870,1818870,1818870,1818870,1818870,1818870,1818870,1909814,1909814,1818870,1909814,1909814,1909814,1818870,1818870,1909814,1909814,1909814,1909814,1909814,1909814,2163121,null,1818870,2862794,2862794,2862794,2862794],"Trip.com":[1835400,1835400,1835400,2190888,2042400,2042400,2042400,2042400,2205792,2205792,2205792,2190888,null,null,2488147,2488147,2488147,2488147,2488147,2488147,2488147,2687199,2687199,2687199,2687199,3028902,3028902,2289420,2289420,2289420,2289420,2180400,2180400,2180400,2180400,2289420,2180400,2180400,2289420,2289420,2289420,2180400,2180400,2180400,2180400,2180400,2289420,2289420,2403890,2289420,2289420,2289420,2289420,2289420,2180400,2180400,2289420,2289420,2289420,2403890,2884668,2403890,2289420,2289420,2180400,2289420,2289420,2403890,2289420,2289420,2289420,2289420,2289420,2884669,2747304,4086614,2403890,2180400,2180400,2180400,2747304,2747304,2180400,2180400,2180400,2180400,2180400,2180400,2637413,2884669,2884669,2180400,2180400,2180400,2180400,2180400,2180400,2180400,2180400,2289420,2289420,2180400,2289420,2289420,2289420,2180400,2180400,2289420,2289420,2289420,2289420,2289420,2289420,3028904,3028904,2180400,3472118,3472118,3472118,3472118],"tiket.com":[null,1886618,1948961,2308339,2165057,2111043,2313081,null,null,null,1977203,2117982,null,null,2441126,2441126,2637574,2409079,2441126,2441126,2642098,2866346,2409079,3135066,2409079,2664830,2664830,null,2353308,2310149,2322492,2112257,2112257,null,2169418,2366703,2111742,2200142,2217869,2310149,2277889,2200142,2169418,null,2169418,2200142,2277889,2310149,2391784,2310149,2322492,2310149,2277889,null,null,2200142,2322492,2310149,2322492,2470366,2470366,2425657,2277889,2310149,2169418,2310149,2277889,2425657,2277889,2310149,2277889,2310149,2277889,2553919,2464952,2679246,2391784,2200142,2169418,2200142,2388849,2376153,2169418,2200142,2169418,2200142,2169418,2200142,2460120,2556038,2460120,2200142,2169418,2200142,2169418,2200142,2169418,2200142,2169418,2310149,2277889,null,2277889,2310149,2277889,null,2169418,null,2277889,2310149,2277889,2310149,2277889,2619709,2583126,null,3454632,3503558,3454632,3297519],"Traveloka.com":[null,1886618,null,2336947,2165057,2111043,null,null,null,1934439,null,null,null,null,null,null,null,2654025,null,null,null,2866346,2866346,null,null,null,null,2442047,null,null,2426910,null,null,2325761,null,null,null,null,2150443,null,null,null,2253682,null,null,null,2075360,2442047,null,null,null,2442047,null,null,null,null,null,null,null,null,2483175,null,null,2191226,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,2250563,2250563,null,null,null,null,null,null,null,null,null,2011499,2011499,2011499,null,null,null,null,1914322,null,1917918,null,null,null,null,1822816,2016398,null,null,2366364,2117412,2442047,null,null,2365387,2325761,2898531,null,null,3703593],"klook":[null,null,1480263,1783389,1648666,1648666,1648666,null,1758781,1758781,1758781,1783389,null,null,2019152,2069673,2019152,2019152,null,null,2019152,2142629,2142629,2142629,2142629,null,2173578,1901270,null,1825462,1825462,1738535,1738535,1738535,1738535,1825462,1800228,1738535,1825462,1825462,1901270,1738535,1800228,1738535,1738535,1738535,1825462,1825462,1916735,1825462,1901270,1901270,1825462,1825462,1738535,1766548,1850749,1850749,1850749,2002312,2070074,1951792,1850749,1850749,1766548,1901270,1825462,1951792,1901270,1825462,1825462,1825462,1850749,1971499,1971499,3258448,1916735,1766548,1738535,1738535,1877617,1877617,1738535,1738535,1766548,1766548,1738535,1738535,1971499,1971499,1971499,1766548,1766548,1766548,1766548,1766548,1766548,1766548,1831720,2251707,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],"Tripadvisor":[null,1680000,1679521,null,1869000,null,null,null,null,1731000,1730973,null,null,null,2092000,null,null,null,null,2092488,2143120,2109000,null,null,2083667,2253375,null,null,null,1912266,1912266,1821206,1822000,1822000,null,null,1822000,1821206,1912266,1912266,1912000,1821206,1821206,null,1821206,1822000,null,1912266,null,1912266,1912266,1912266,1912000,1912000,1821206,1822000,1912266,null,1912000,null,2036000,null,null,null,1821206,null,1912000,null,null,1912266,1912266,1912000,null,2066000,2065247,2423397,null,null,1822000,1821206,1847704,1966902,1821206,null,1822000,1822000,1822000,1821206,2065247,null,2065247,1822000,1822000,1821206,1822000,1822000,1821206,1821206,1821206,1912000,1912000,1821206,1912266,1912000,1912266,1821206,1821206,1912266,1912000,1912000,1912000,1912266,1912000,2168000,2168000,1822000,2885475,2885475,2885475,2885475],"Bluepillow.id":[1837438,1837438,1837438,2193181,2044588,2044588,2044588,2044588,1730648,1732679,1732679,2193181,null,null,2490874,2487489,2487489,2487489,2487489,2490874,2490874,2108730,2143255,2690069,2138686,2256138,2256138,2291848,2291848,2291848,2291848,2182857,2182857,2182857,2182857,2291848,2182857,2182857,2291848,2291848,2291848,2182857,2182857,2182857,2182857,2182857,2291848,2291848,2406592,2291848,2291848,2291848,2291848,2291848,2182857,2182857,2291848,2291848,2291848,2406592,2036972,1887533,1797498,2291848,2182857,2291848,2291848,1888041,2291848,2291848,1798682,1796482,2291848,2067774,1939659,2426393,2403377,2179811,1712708,2179811,1969276,1849962,2180996,1720832,2183026,1712032,1712201,1720493,1950152,2069128,2069128,2182857,2182857,2182857,2182857,2182857,2182857,2182857,2182857,2291848,2291848,2182857,2291848,2291848,2291848,2182857,2182857,2291848,2289648,2289648,2289648,2289648,2289648,2171180,2171180,2180657,3472466,3472466,3472466,3472466]};
+
+const dailyOcc = {"2026-03-06":73.81,"2026-03-07":74.42,"2026-03-08":65.12,"2026-03-09":65.12,"2026-03-10":55.81,"2026-03-11":58.14,"2026-03-12":51.16,"2026-03-13":51.16,"2026-03-14":46.51,"2026-03-15":39.53,"2026-03-16":62.79,"2026-03-17":69.77,"2026-03-18":69.77,"2026-03-19":69.77,"2026-03-20":79.07,"2026-03-21":74.42,"2026-03-22":76.74,"2026-03-23":81.4,"2026-03-25":83.72,"2026-03-26":74.42,"2026-03-27":79.07,"2026-03-28":81.4,"2026-03-29":81.4,"2026-03-30":81.4,"2026-03-31":81.4,"2026-04-01":88.37,"2026-04-02":88.37,"2026-04-03":51.16,"2026-04-04":62.79,"2026-04-05":55.81,"2026-04-06":60.47,"2026-04-07":51.16,"2026-04-08":48.84,"2026-04-09":44.19,"2026-04-10":46.51,"2026-04-11":55.81,"2026-04-12":39.53,"2026-04-13":41.86,"2026-04-14":55.81,"2026-04-15":60.47,"2026-04-16":62.79,"2026-04-17":53.49,"2026-04-18":37.21,"2026-04-19":39.53,"2026-04-20":44.19,"2026-04-21":48.84,"2026-04-22":62.79,"2026-04-23":62.79,"2026-04-24":74.42,"2026-04-25":62.79,"2026-04-26":48.84,"2026-04-27":51.16,"2026-04-28":55.81,"2026-04-29":62.79,"2026-04-30":46.51,"2026-05-01":53.49,"2026-05-02":53.49,"2026-05-03":62.79,"2026-05-04":65.12,"2026-05-05":79.07,"2026-05-06":81.4,"2026-05-07":81.4,"2026-05-08":62.79,"2026-05-09":58.14,"2026-05-10":48.84,"2026-05-11":51.16,"2026-05-12":62.79,"2026-05-13":60.47,"2026-05-14":60.47,"2026-05-15":62.79,"2026-05-16":51.16,"2026-05-17":55.81,"2026-05-18":65.12,"2026-05-19":69.77,"2026-05-20":53.49,"2026-05-21":83.72,"2026-05-22":76.74,"2026-05-23":44.19,"2026-05-24":46.51,"2026-05-25":51.16,"2026-05-26":44.19,"2026-05-27":46.51,"2026-05-28":39.53,"2026-05-29":37.21,"2026-05-30":37.21,"2026-05-31":32.56,"2026-06-01":27.91,"2026-06-02":46.51,"2026-06-03":72.09,"2026-06-04":67.44,"2026-06-05":62.79,"2026-06-06":27.91,"2026-06-07":27.91,"2026-06-08":30.23,"2026-06-09":32.56,"2026-06-10":46.51,"2026-06-11":44.19,"2026-06-12":37.21,"2026-06-13":39.53,"2026-06-14":55.81,"2026-06-15":60.47,"2026-06-16":48.84,"2026-06-17":60.47,"2026-06-18":62.79,"2026-06-19":55.81,"2026-06-20":46.51,"2026-06-21":48.84,"2026-06-22":55.81,"2026-06-23":51.16,"2026-06-24":48.84,"2026-06-25":46.51,"2026-06-26":46.51,"2026-06-27":46.51,"2026-06-28":79.07,"2026-06-29":74.42,"2026-06-30":23.26,"2026-07-01":16.28,"2026-07-02":18.6,"2026-07-03":20.93,"2026-07-04":32.56};
+
+const TODAY = new Date('2026-03-06');
+const fmtP = v => (v / 1e6).toFixed(2) + 'M';
+
+// Build per-date analysis
+const dates14 = [];
+chDates.forEach((date, idx) => {
+  const dOut = Math.round((new Date(date) - TODAY) / 864e5);
+  if (dOut < 0 || dOut > 14) return;
+
+  const ws = chEvo['Official Site'][idx];
+  let minP = Infinity, minCh = '-';
+  chNames.forEach(ch => {
+    if (ch === 'Official Site') return;
+    const p = chEvo[ch][idx];
+    if (p && p < minP) { minP = p; minCh = ch; }
+  });
+  if (minP === Infinity) return;
+
+  const gap = +((ws - minP) / minP * 100).toFixed(1);
+  const occ = dailyOcc[date] || null;
+  dates14.push({ date, ws, minP, minCh, gap, occ, dOut });
+});
+
+// Build all dates for summary stats
+const allDates = [];
+let reduceCount = 0, totalEmpty = 0;
+const compOccArr = [], overOccArr = [];
+chDates.forEach((date, idx) => {
+  const dOut = Math.round((new Date(date) - TODAY) / 864e5);
+  if (dOut < 0) return;
+  const ws = chEvo['Official Site'][idx];
+  let minP = Infinity, minCh = '-';
+  chNames.forEach(ch => {
+    if (ch === 'Official Site') return;
+    const p = chEvo[ch][idx];
+    if (p && p < minP) { minP = p; minCh = ch; }
+  });
+  if (minP === Infinity) return;
+  const gap = +((ws - minP) / minP * 100).toFixed(1);
+  const occ = dailyOcc[date] || null;
+  if (gap > 3) reduceCount++;
+  if (occ) {
+    const empty = Math.round(43 * (100 - occ) / 100);
+    totalEmpty += empty;
+    if (gap < -3) compOccArr.push(occ);
+    if (gap > 3) overOccArr.push(occ);
+  }
+  allDates.push({ date, ws, minP, minCh, gap, occ, dOut });
+});
+
+const avgCompOcc = compOccArr.length ? (compOccArr.reduce((a,b)=>a+b,0)/compOccArr.length).toFixed(1) : '-';
+const avgOverOcc = overOccArr.length ? (overOccArr.reduce((a,b)=>a+b,0)/overOccArr.length).toFixed(1) : '-';
+
+document.getElementById('sReduceCount').textContent = reduceCount;
+document.getElementById('sEmptyRooms').textContent = totalEmpty;
+document.getElementById('sCompOcc').textContent = avgCompOcc + '%';
+
+// Cheapest channel frequency on overpriced dates
+const chFreq = {};
+allDates.filter(d => d.gap > 0).forEach(d => {
+  chFreq[d.minCh] = (chFreq[d.minCh]||0) + 1;
+});
+const topCh = Object.entries(chFreq).sort((a,b)=>b[1]-a[1]);
+const topChStr = topCh.slice(0,3).map(([ch,n])=>ch+' ('+n+'x)').join(', ');
+
+// Urgent reduce (next 30d)
+const urgentReduce = allDates.filter(d => d.gap > 3 && d.dOut <= 30);
+const compDatesCount = allDates.filter(d => d.gap < -3).length;
+
+// Revenue at risk
+const avgARR = 1800000; // ~1.8M avg
+const perRoom = avgARR * 1.35;
+const urgentEmpty = urgentReduce.filter(d=>d.occ).reduce((s,d)=>s+Math.round(43*(100-d.occ)/100),0);
+
+// Recommendations
+const recs = [
+  { cls:'critical', priority:'p1', plabel:'Priority 1 — Do Today',
+    title: urgentReduce.length + ' overpriced dates check-in within 30 days',
+    text: 'These dates are priced ' + (urgentReduce.length ? ('+' + (urgentReduce.reduce((s,d)=>s+d.gap,0)/urgentReduce.length).toFixed(1) + '% avg') : '') + ' above the cheapest competitor. Channels beating you most often: <strong>' + topChStr + '</strong>. Match or undercut their price to capture bookings before check-in.',
+    numbers: ['Dates: ' + urgentReduce.length, 'Empty rooms: ' + urgentEmpty, 'Est. loss/room: IDR ' + fmtP(perRoom)] },
+
+  { cls:'warning', priority:'p2', plabel:'Priority 2 — This Week',
+    title: 'April OCC at 56% with 30-day booking window closing',
+    text: 'April has the highest concentration of empty rooms. ' + allDates.filter(d=>d.date.startsWith('2026-04')&&d.gap>3).length + ' April dates are still overpriced. Every day you wait, the booking window shrinks and last-minute demand won\'t fill 44% vacancy.',
+    numbers: ['Apr OCC: 56%', 'Apr overpriced dates: ' + allDates.filter(d=>d.date.startsWith('2026-04')&&d.gap>3).length, 'Empty rooms (Apr): ' + allDates.filter(d=>d.date.startsWith('2026-04')&&d.occ).reduce((s,d)=>s+Math.round(43*(100-d.occ)/100),0)] },
+
+  { cls:'action', priority:'p3', plabel:'Priority 3 — Fix Channel Pricing',
+    title: 'Website is cheapest on only 41% of dates — OTAs undercut you on 106 dates',
+    text: 'Tripadvisor undercuts on 64 dates, Agoda on 58, klook on 42. When guests compare prices and see a cheaper OTA, they book there. Fix rate parity so your direct channel wins — it has the highest margin.',
+    numbers: ['Website cheapest: 74/180', 'Tripadvisor: 64 violations', 'Agoda: 58 violations'] },
+
+  { cls:'success', priority:'p4', plabel:'Opportunity',
+    title: compDatesCount + ' dates already priced competitively — push marketing to fill',
+    text: 'These dates avg ' + avgCompOcc + '% OCC because the price is right. Run targeted ads, boost OTA visibility, and push promo codes. Each room filled adds ~IDR ' + fmtP(perRoom) + ' (room + F&B + spa).',
+    numbers: ['Competitive dates: ' + compDatesCount, 'Avg OCC when competitive: ' + avgCompOcc + '%', 'Revenue/room: IDR ' + fmtP(perRoom)] },
+
+  { cls:'info', priority:'p4', plabel:'Insight',
+    title: 'Overpriced dates avg ' + avgOverOcc + '% OCC vs ' + avgCompOcc + '% when competitive',
+    text: 'The data shows a clear pattern: dates where you\'re priced above market fill slower. The #1 occupancy driver isn\'t your absolute price — it\'s how many channels are cheaper than you. Reduce the gap, fill the rooms.',
+    numbers: ['OCC when overpriced: ' + avgOverOcc + '%', 'OCC when competitive: ' + avgCompOcc + '%', 'Delta: ' + (avgCompOcc - avgOverOcc).toFixed(1) + ' pp'] }
+];
+
+document.getElementById('recList').innerHTML = recs.map(r =>
+  '<div class="rec-item ' + r.cls + '">' +
+  '<div class="priority ' + r.priority + '">' + r.plabel + '</div>' +
+  '<h3>' + r.title + '</h3>' +
+  '<p>' + r.text + '</p>' +
+  (r.numbers ? '<div class="numbers">' + r.numbers.map(n=>'<span>'+n+'</span>').join('') + '</div>' : '') +
+  '</div>'
+).join('');
+
+// Cheapest price table (next 14 days)
+let html = '';
+dates14.forEach(d => {
+  const gapColor = d.gap > 3 ? '#ef4444' : d.gap > 0 ? '#f59e0b' : d.gap > -3 ? '#22c55e' : '#38bdf8';
+  const occColor = d.occ < 50 ? '#ef4444' : d.occ < 70 ? '#f59e0b' : '#22c55e';
+  let action = '-';
+  if (d.gap > 3) action = '<span style="color:#ef4444;font-weight:700">REDUCE to IDR ' + fmtP(d.minP) + '</span>';
+  else if (d.gap > 0) action = '<span style="color:#f59e0b">WATCH — close to market</span>';
+  else action = '<span style="color:#22c55e">OK — competitive</span>';
+
+  html += '<tr>' +
+    '<td style="color:#e2e8f0;font-weight:500">' + d.date + ' <span style="color:#64748b;font-size:10px">(' + d.dOut + 'd)</span></td>' +
+    '<td style="color:#38bdf8;font-weight:600">IDR ' + fmtP(d.ws) + '</td>' +
+    '<td style="font-weight:600">IDR ' + fmtP(d.minP) + '</td>' +
+    '<td style="color:#f59e0b">' + d.minCh + '</td>' +
+    '<td style="color:' + gapColor + ';font-weight:600">' + (d.gap > 0 ? '+' : '') + d.gap + '%</td>' +
+    '<td style="color:' + occColor + '">' + (d.occ ? d.occ + '%' : '-') + '</td>' +
+    '<td>' + action + '</td></tr>';
+});
+document.getElementById('cheapestTbody').innerHTML = html;
+</script>
+
+</body>
+</html>

@@ -1849,6 +1849,7 @@
           <th>Zone</th>
           <th>Website Price</th>
           <th>Cheapest Market</th>
+          <th>Cheapest Channel</th>
           <th>Gap</th>
           <th>Daily OCC</th>
           <th>Signal</th>
@@ -1862,14 +1863,57 @@
 
 <div class="recs">
   <h2>Occupancy-First Pricing Insights</h2>
-  <div class="rec-grid">
-    <div class="rec warning"><h3>Empty Room = Lost Total Revenue</h3><p>Each empty room loses room + F&B + spa + ancillary revenue. At 70% OCC (Mar) and 56% (Apr), <strong>fill rooms first</strong> — every guest drives total property revenue.</p></div>
-    <div class="rec action"><h3>Reduce Overpriced Dates</h3><p>Dates &gt;3% above market = lost bookings. Match or beat market price — ancillary revenue from each guest compensates for rate reductions.</p></div>
-    <div class="rec success"><h3>Competitive = Push Marketing</h3><p>At/below market? Push via marketing, promotions, OTA visibility. Fill rooms first, upsell F&B and spa on arrival.</p></div>
-    <div class="rec info"><h3>Booking Window</h3><p>Future months show lower OCC naturally. Don't wait for last-minute demand — lock in bookings early at market rate.</p></div>
-    <div class="rec action"><h3>Rate Parity Leak</h3><p>Tripadvisor (64), Agoda (58), klook (42) undercut website. Each violation = potential lost guest. Fix urgently.</p></div>
-  </div>
+  <div class="rec-grid" id="recGrid"></div>
 </div>
+<script>
+(function() {
+  // Compute concrete numbers for recommendations
+  const reduceDates = dm.filter(d => d.sig === 'reduce');
+  const urgentReduce = reduceDates.filter(d => d.zone === 'urgent' || d.zone === 'active');
+  const compDates = dm.filter(d => d.sig === 'competitive');
+  const avgCompOcc = compDates.filter(d=>d.occ).length ? (compDates.filter(d=>d.occ).reduce((s,d)=>s+d.occ,0)/compDates.filter(d=>d.occ).length).toFixed(1) : '?';
+  const avgReduceOcc = reduceDates.filter(d=>d.occ).length ? (reduceDates.filter(d=>d.occ).reduce((s,d)=>s+d.occ,0)/reduceDates.filter(d=>d.occ).length).toFixed(1) : '?';
+
+  // Top cheapest channels that undercut us
+  const chUndercut = {};
+  dm.forEach(d => {
+    if (d.cheapestChannel && d.cheapestChannel !== '-' && d.gap > 0) {
+      chUndercut[d.cheapestChannel] = (chUndercut[d.cheapestChannel]||0) + 1;
+    }
+  });
+  const topUndercut = Object.entries(chUndercut).sort((a,b)=>b[1]-a[1]).slice(0,3);
+  const undercutStr = topUndercut.map(([ch,n])=>ch+' ('+n+'x)').join(', ');
+
+  // Avg gap on overpriced dates
+  const avgOverGap = reduceDates.length ? (reduceDates.reduce((s,d)=>s+d.gap,0)/reduceDates.length).toFixed(1) : 0;
+
+  // Empty rooms on reduce dates
+  const emptyOnReduce = reduceDates.filter(d=>d.occ).reduce((s,d)=>s + Math.round(estRooms*(100-d.occ)/100),0);
+
+  // Mar/Apr OCC
+  const marDates = dm.filter(d=>d.date.startsWith('2026-03')&&d.occ);
+  const aprDates = dm.filter(d=>d.date.startsWith('2026-04')&&d.occ);
+  const marOcc = marDates.length ? (marDates.reduce((s,d)=>s+d.occ,0)/marDates.length).toFixed(0) : '?';
+  const aprOcc = aprDates.length ? (aprDates.reduce((s,d)=>s+d.occ,0)/aprDates.length).toFixed(0) : '?';
+
+  const recs = [
+    { cls:'warning', title:'Mar OCC '+marOcc+'%, Apr OCC '+aprOcc+'% — '+emptyOnReduce+' Empty Room-Nights on Overpriced Dates',
+      text:'At current pricing, '+reduceDates.length+' dates are overpriced (avg +'+avgOverGap+'% vs market). Those dates have '+emptyOnReduce+' empty room-nights. Each empty room loses ~IDR '+(emptyRoomCost/1e6).toFixed(1)+'M (room + F&B + spa). <strong>Fixing price on these dates alone could recover IDR '+(recoveryPotential/1e6).toFixed(0)+' Jt.</strong>' },
+    { cls:'action', title:urgentReduce.length+' Dates Need Price Reduction Within 30 Days',
+      text:urgentReduce.length+' check-in dates in the next 30 days are priced above market. Top channels beating us: <strong>'+undercutStr+'</strong>. Avg OCC on overpriced dates: '+avgReduceOcc+'% vs '+avgCompOcc+'% on competitive dates. Match the cheapest channel price shown in the table above.' },
+    { cls:'success', title:compDates.length+' Dates Already Competitive — Push Marketing Now',
+      text:'These dates avg '+avgCompOcc+'% OCC because price is right. Boost OTA visibility, run promos, and push direct booking ads. Each room filled = IDR '+(emptyRoomCost/1e6).toFixed(1)+'M total revenue (room + ancillary).' },
+    { cls:'info', title:'Jun-Jul OCC Below 50% — Book Early, Don\'t Wait',
+      text:'Jun forecast '+oa.find(o=>o.month==='2026-06').occ+'% OCC, Jul '+oa.find(o=>o.month==='2026-07').occ+'%. These months still have 60-120 days lead time. Lock in bookings now at market rate — waiting for last-minute demand risks empty rooms.' },
+    { cls:'action', title:'164 Rate Parity Violations — Tripadvisor, Agoda, klook Leak Bookings',
+      text:'Tripadvisor undercuts website on 64 dates, Agoda on 58, klook on 42. Website is cheapest on only 41% of dates (74/180). Guests compare prices — if OTAs are cheaper, they book there instead of direct. Fix channel pricing to recapture direct bookings.' }
+  ];
+
+  document.getElementById('recGrid').innerHTML = recs.map(r =>
+    '<div class="rec '+r.cls+'"><h3>'+r.title+'</h3><p>'+r.text+'</p></div>'
+  ).join('');
+})();
+</script>
 
 <script>
 Chart.defaults.color = '#94a3b8';
@@ -1992,6 +2036,18 @@ const dm = pd.filter(d => d.bestExternal != null).map(d => {
   const gap = +((d.websitePrice - d.bestExternal) / d.bestExternal * 100).toFixed(1);
   const occ = dailyOcc[d.date] !== undefined ? dailyOcc[d.date] : null;
 
+  // Find which channel is cheapest
+  const dateIdx = chDates.indexOf(d.date);
+  let cheapestChannel = '-';
+  if (dateIdx >= 0) {
+    let minP = Infinity;
+    chNames.forEach(ch => {
+      if (ch === 'Official Site') return;
+      const p = chEvo[ch][dateIdx];
+      if (p && p < minP) { minP = p; cheapestChannel = ch; }
+    });
+  }
+
   // Lead time zones
   let zone, zoneLabel;
   if (dOut <= 14) { zone = 'urgent'; zoneLabel = '0-14d'; }
@@ -2035,7 +2091,7 @@ const dm = pd.filter(d => d.bestExternal != null).map(d => {
 
   return {
     x: dOut, y: gap, date: d.date, dOut, gap, occ, zone, zoneLabel,
-    sig, sigText, reason, wp: d.websitePrice, cp: d.bestExternal
+    sig, sigText, reason, wp: d.websitePrice, cp: d.bestExternal, cheapestChannel
   };
 });
 
@@ -2108,7 +2164,7 @@ new Chart(document.getElementById('leadTimeChart'), {
             return [
               d.date + '  (' + d.dOut + ' days out)',
               'Website: IDR ' + (d.wp / 1e6).toFixed(2) + 'M',
-              'Market:  IDR ' + (d.cp / 1e6).toFixed(2) + 'M',
+              'Cheapest: IDR ' + (d.cp / 1e6).toFixed(2) + 'M (' + (d.cheapestChannel || '-') + ')',
               'Gap: ' + (d.gap > 0 ? '+' : '') + d.gap + '%',
               'OCC: ' + (d.occ || '?') + '%',
               d.sigText + ' — ' + d.reason
@@ -2236,7 +2292,8 @@ document.getElementById('gaEmptyRooms').textContent = totalEmptyRoomNights;
 // === Gap vs OCC Scatter ===
 const gapOccData = enriched.map(d => ({
   x: d.gap, y: d.occ, date: d.date, wp: d.wp, cp: d.cp, dOut: d.dOut,
-  avgComp: d.avgCompPrice, cheaper: d.cheaperCount, compCount: d.compCount
+  avgComp: d.avgCompPrice, cheaper: d.cheaperCount, compCount: d.compCount,
+  cheapestChannel: d.cheapestChannel || '-'
 }));
 
 const monthColors = {
@@ -2281,7 +2338,7 @@ new Chart(document.getElementById('gapOccScatter'), {
         if (!d.date) return 'Trend line';
         return [d.date, 'OCC: ' + d.y + '%', 'Gap: ' + (d.x > 0 ? '+' : '') + d.x + '%',
                 'Website: IDR ' + (d.wp / 1e6).toFixed(2) + 'M',
-                'Market: IDR ' + (d.cp / 1e6).toFixed(2) + 'M',
+                'Cheapest: IDR ' + (d.cp / 1e6).toFixed(2) + 'M (' + d.cheapestChannel + ')',
                 'Avg Comp: IDR ' + (d.avgComp ? (d.avgComp / 1e6).toFixed(2) + 'M' : '-'),
                 d.cheaper + ' of ' + d.compCount + ' channels cheaper than us'];
       }}}
@@ -2461,6 +2518,7 @@ function buildMonitorTable(filterSig, filterZone) {
       '<td><span class="zone-tag zone-' + d.zone + '">' + d.zoneLabel + '</span></td>' +
       '<td style="color:#38bdf8;font-weight:600">' + fmtPrice(d.wp) + '</td>' +
       '<td>' + fmtPrice(d.cp) + '</td>' +
+      '<td style="color:#94a3b8;font-size:10px">' + d.cheapestChannel + '</td>' +
       '<td style="color:' + gapColor + ';font-weight:600">' + (d.gap > 0 ? '+' : '') + d.gap + '%</td>' +
       '<td>' + (d.occ ? d.occ + '%' : '-') + '</td>' +
       '<td><span class="sig sig-' + d.sig + '">' + d.sigText + '</span></td>' +
